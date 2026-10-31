@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DxOtimiza" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#111827</item>
+        <item name="colorPrimaryDark">#111827</item>
+        <item name="colorAccent">#06B6D4</item>
+    </style>
+</resources>

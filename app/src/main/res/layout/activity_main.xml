@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DX Otimiza 0.1.0"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Reduz o peso dos JPGs sem mudar a resolução. A origem nunca é alterada: o resultado vai para a pasta de destino, com o mesmo nome. Se a versão nova ficar maior, a original é copiada sem alteração." />
+
+        <TextView
+            android:id="@+id/txtSource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Origem: nenhuma pasta escolhida" />
+
+        <Button
+            android:id="@+id/btnSource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1) Escolher pasta de origem (JPGs)" />
+
+        <TextView
+            android:id="@+id/txtDest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Destino: nenhuma pasta escolhida" />
+
+        <Button
+            android:id="@+id/btnDest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2) Escolher pasta de destino" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Qualidade (v0.1: fixa por modo, sem análise perceptual por foto)"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rdoQualidade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Qualidade (92) — menos economia, mais segurança" />
+
+            <RadioButton
+                android:id="@+id/rdoEquilibrio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Equilíbrio (85) — recomendado para entrega" />
+
+            <RadioButton
+                android:id="@+id/rdoLeve"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Leve (75) — máxima economia, olhe antes de entregar" />
+        </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/chkExif"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:checked="true"
+            android:text="Manter EXIF (câmera, data, lente)" />
+
+        <CheckBox
+            android:id="@+id/chkNoGps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remover localização GPS do EXIF" />
+
+        <Button
+            android:id="@+id/btnAnalyze"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Analisar pasta" />
+
+        <Button
+            android:id="@+id/btnOptimize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Otimizar lote" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Pronto." />
+
+        <TextView
+            android:id="@+id/txtCurrent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/txtSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Teste primeiro com uma pasta-cópia pequena, não direto na pasta original do evento. Confira o resultado em 100% antes de entregar. Mantenha o app aberto durante o lote." />
+
+    </LinearLayout>
+</ScrollView>
