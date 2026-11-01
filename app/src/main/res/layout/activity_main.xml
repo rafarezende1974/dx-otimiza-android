@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Visual v0.3: fundo escuro, contador grande de economia no topo
+     e prévia da primeira foto da pasta, no espírito do JPEGmini
+     (sem copiar nome, logo ou textos dele). Todos os IDs usados
+     pela MainActivity foram mantidos; os novos são txtSavedTotal,
+     txtSavedDetail, imgPreview e txtPreviewHint. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#111827"
     android:padding="16dp">
 
     <LinearLayout
@@ -12,47 +18,123 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="JPG Otimiza 0.2.0"
-            android:textSize="22sp"
+            android:text="JPG Otimiza"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Reduz o peso dos JPGs sem mudar a resolução, com o motor MozJPEG (progressivo + trellis). A origem nunca é alterada: o resultado vai para a pasta de destino, com o mesmo nome. Se a versão nova ficar maior, a original é copiada sem alteração. Se o motor nativo falhar, o app usa o encoder Android sem quebrar o lote." />
+            android:layout_marginTop="2dp"
+            android:text="Motor MozJPEG • a origem nunca é alterada"
+            android:textColor="#CBD5E1"
+            android:textSize="14sp" />
+
+        <!-- Contador de economia, como o "total saved" do JPEGmini -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/card_dark"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TOTAL ECONOMIZADO"
+                android:textColor="#9CA3AF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtSavedTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0 MB"
+                android:textColor="#FFFFFF"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtSavedDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Nenhum lote ainda"
+                android:textColor="#CBD5E1"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Prévia: primeira foto da pasta de origem -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/card_dark"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/imgPreview"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="#000000"
+                android:contentDescription="Prévia da primeira foto da pasta de origem"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/txtPreviewHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_horizontal"
+                android:text="Escolha a pasta de origem para ver a primeira foto aqui"
+                android:textColor="#CBD5E1"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/txtSource"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Origem: nenhuma pasta escolhida" />
+            android:text="Origem: nenhuma pasta escolhida"
+            android:textColor="#F8FAFC" />
 
         <Button
             android:id="@+id/btnSource"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1) Escolher pasta de origem (JPGs)" />
+            android:backgroundTint="#374151"
+            android:text="1) Escolher pasta de origem (JPGs)"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/txtDest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Destino: nenhuma pasta escolhida" />
+            android:text="Destino: nenhuma pasta escolhida"
+            android:textColor="#F8FAFC" />
 
         <Button
             android:id="@+id/btnDest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2) Escolher pasta de destino" />
+            android:backgroundTint="#374151"
+            android:text="2) Escolher pasta de destino"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Qualidade (v0.1: fixa por modo, sem análise perceptual por foto)"
+            android:text="Qualidade (fixa por modo, sem análise perceptual por foto)"
+            android:textColor="#FFFFFF"
             android:textStyle="bold" />
 
         <RadioGroup
@@ -64,20 +146,23 @@
                 android:id="@+id/rdoQualidade"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Qualidade (92) — menos economia, mais segurança" />
+                android:text="Qualidade (92) — menos economia, mais segurança"
+                android:textColor="#F8FAFC" />
 
             <RadioButton
                 android:id="@+id/rdoEquilibrio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="Equilíbrio (85) — recomendado para entrega" />
+                android:text="Equilíbrio (85) — recomendado para entrega"
+                android:textColor="#F8FAFC" />
 
             <RadioButton
                 android:id="@+id/rdoLeve"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Leve (75) — máxima economia, olhe antes de entregar" />
+                android:text="Leve (75) — máxima economia, olhe antes de entregar"
+                android:textColor="#F8FAFC" />
         </RadioGroup>
 
         <TextView
@@ -85,6 +170,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Motor"
+            android:textColor="#FFFFFF"
             android:textStyle="bold" />
 
         <RadioGroup
@@ -97,13 +183,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="MozJPEG (nativo) — menor arquivo na mesma qualidade" />
+                android:text="MozJPEG (nativo) — menor arquivo na mesma qualidade"
+                android:textColor="#F8FAFC" />
 
             <RadioButton
                 android:id="@+id/rdoAndroid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Android (padrão) — igual à v0.1" />
+                android:text="Android (padrão) — igual à v0.1"
+                android:textColor="#F8FAFC" />
         </RadioGroup>
 
         <TextView
@@ -111,7 +199,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="" />
+            android:text=""
+            android:textColor="#CBD5E1" />
 
         <CheckBox
             android:id="@+id/chkExif"
@@ -119,26 +208,33 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:checked="true"
-            android:text="Manter EXIF (câmera, data, lente)" />
+            android:text="Manter EXIF (câmera, data, lente)"
+            android:textColor="#F8FAFC" />
 
         <CheckBox
             android:id="@+id/chkNoGps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remover localização GPS do EXIF" />
+            android:text="Remover localização GPS do EXIF"
+            android:textColor="#F8FAFC" />
 
         <Button
             android:id="@+id/btnAnalyze"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Analisar pasta" />
+            android:backgroundTint="#374151"
+            android:text="Analisar pasta"
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/btnOptimize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Otimizar lote" />
+            android:backgroundTint="#DC2626"
+            android:text="OTIMIZAR LOTE"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -146,34 +242,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:max="100" />
+            android:max="100"
+            android:progressTint="#DC2626" />
 
         <TextView
             android:id="@+id/txtStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Pronto." />
+            android:text="Pronto."
+            android:textColor="#F8FAFC" />
 
         <TextView
             android:id="@+id/txtCurrent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="" />
+            android:text=""
+            android:textColor="#CBD5E1" />
 
         <TextView
             android:id="@+id/txtSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="" />
+            android:text=""
+            android:textColor="#F8FAFC" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Teste primeiro com uma pasta-cópia pequena, não direto na pasta original do evento. Confira o resultado em 100% antes de entregar. Mantenha o app aberto durante o lote." />
+            android:text="Teste primeiro com uma pasta-cópia pequena, não direto na pasta original do evento. Confira o resultado em 100% antes de entregar. Mantenha o app aberto durante o lote."
+            android:textColor="#CBD5E1" />
 
     </LinearLayout>
 </ScrollView>

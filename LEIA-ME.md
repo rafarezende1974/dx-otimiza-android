@@ -1,4 +1,13 @@
-# JPG Otimiza Android v0.2.0
+# JPG Otimiza Android v0.3.0
+
+## O que a v0.3 muda (visual)
+
+- Visual novo: fundo escuro, contador grande "TOTAL ECONOMIZADO"
+  no topo e prévia da primeira foto da pasta de origem. Só a casca:
+  motor, EXIF, origem intacta e relatórios não mudam.
+- Ícone novo: foto da lata "JPG Diet" enviada por ele
+  (`ic_launcher_photo.png`, 864x864), em vez do vetor da v0.2
+  (que fica sem uso no repo).
 
 Otimizador de JPGs para a Galaxy Tab S9+ (e outros tablets Android
 arm64). Equivalente próprio, em espírito, ao JPEGmini de Windows:

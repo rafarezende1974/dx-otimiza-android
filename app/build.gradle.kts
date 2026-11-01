@@ -15,8 +15,8 @@ android {
         applicationId = "br.com.dxlabs.dxotimiza"
         minSdk = 29
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
         ndk {
             // Tab S9+ é arm64-v8a. Só essa ABI na v0.2, para o build
             // do MozJPEG ser um só e mais rápido.

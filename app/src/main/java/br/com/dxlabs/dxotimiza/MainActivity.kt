@@ -1,11 +1,13 @@
 package br.com.dxlabs.dxotimiza
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.TextView
@@ -31,6 +33,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtCurrent: TextView
     private lateinit var txtSummary: TextView
     private lateinit var txtEngine: TextView
+    private lateinit var txtSavedTotal: TextView
+    private lateinit var txtSavedDetail: TextView
+    private lateinit var txtPreviewHint: TextView
+    private lateinit var imgPreview: ImageView
     private lateinit var progress: ProgressBar
     private lateinit var btnOptimize: Button
     private lateinit var btnAnalyze: Button
@@ -73,6 +79,10 @@ class MainActivity : AppCompatActivity() {
         txtCurrent = findViewById(R.id.txtCurrent)
         txtSummary = findViewById(R.id.txtSummary)
         txtEngine = findViewById(R.id.txtEngine)
+        txtSavedTotal = findViewById(R.id.txtSavedTotal)
+        txtSavedDetail = findViewById(R.id.txtSavedDetail)
+        txtPreviewHint = findViewById(R.id.txtPreviewHint)
+        imgPreview = findViewById(R.id.imgPreview)
         progress = findViewById(R.id.progress)
         btnOptimize = findViewById(R.id.btnOptimize)
         btnAnalyze = findViewById(R.id.btnAnalyze)
@@ -158,10 +168,39 @@ class MainActivity : AppCompatActivity() {
             val items = OptimizeEngine.listJpegs(root)
             val total = items.sumOf { it.first.length() }
             listed = items
+            // Prévia do visual v0.3: miniatura da primeira foto, sem
+            // carregar o arquivo inteiro (amostra para ~800px de largura).
+            val preview = try {
+                val first = items.firstOrNull()?.first
+                if (first == null) null else {
+                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    contentResolver.openInputStream(first.uri)?.use {
+                        BitmapFactory.decodeStream(it, null, bounds)
+                    }
+                    var sample = 1
+                    while (bounds.outWidth / sample > 800 && bounds.outHeight / sample > 800) sample *= 2
+                    val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+                    contentResolver.openInputStream(first.uri)?.use {
+                        BitmapFactory.decodeStream(it, null, opts)
+                    }
+                }
+            } catch (ignored: Exception) {
+                null
+            }
             withContext(Dispatchers.Main) {
                 txtStatus.text = "Análise: ${items.size} JPGs, " +
                     SafTree.formatBytes(total) + " no total."
                 txtSummary.text = ""
+                txtSavedTotal.text = "0 MB"
+                txtSavedDetail.text = "${items.size} JPGs • " +
+                    SafTree.formatBytes(total) + " no total"
+                if (preview != null) {
+                    imgPreview.setImageBitmap(preview)
+                    txtPreviewHint.text = "Primeira foto: ${items.first().second}"
+                } else {
+                    imgPreview.setImageDrawable(null)
+                    txtPreviewHint.text = "Nenhuma foto para prévia nesta pasta"
+                }
                 progress.progress = 0
                 btnOptimize.isEnabled = items.isNotEmpty()
             }
@@ -244,7 +283,7 @@ class MainActivity : AppCompatActivity() {
             val motorLabel = if (!useMozJpeg) "Android"
                 else if (MozJpeg.available) "MozJPEG"
                 else "Android (fallback, MozJPEG indisponível)"
-            val summaryText = "JPG Otimiza 0.2.0 — modo ${mode.label} — motor $motorLabel\n" +
+            val summaryText = "JPG Otimiza 0.3.0 — modo ${mode.label} — motor $motorLabel\n" +
                 "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
                 "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
                 "Depois: ${SafTree.formatBytes(newTotal)}\n" +
@@ -257,6 +296,11 @@ class MainActivity : AppCompatActivity() {
                 btnOptimize.isEnabled = true
                 btnAnalyze.isEnabled = true
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                txtSavedTotal.text = SafTree.formatBytes(
+                    (originalTotal - newTotal).coerceAtLeast(0)
+                )
+                txtSavedDetail.text = "${results.size} arquivos • " +
+                    "economia ${"%.1f".format(saved)}%"
                 txtStatus.text = "Pronto: ${results.size} arquivos."
                 txtCurrent.text = ""
                 txtSummary.text = "Motor: $motorLabel. Antes: ${SafTree.formatBytes(originalTotal)} → " +

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.JpgOtimiza" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">#111827</item>
+    <!-- Visual v0.3: fundo escuro fixo (não segue o tema claro do
+         sistema), vermelho da lata como cor de destaque. -->
+    <style name="Theme.JpgOtimiza" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#DC2626</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
         <item name="colorPrimaryDark">#111827</item>
-        <item name="colorAccent">#06B6D4</item>
+        <item name="colorAccent">#DC2626</item>
+        <item name="android:windowBackground">#111827</item>
+        <item name="android:textColor">#F8FAFC</item>
+        <item name="android:textColorSecondary">#CBD5E1</item>
     </style>
 </resources>
