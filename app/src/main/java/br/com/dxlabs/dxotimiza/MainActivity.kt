@@ -30,11 +30,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtStatus: TextView
     private lateinit var txtCurrent: TextView
     private lateinit var txtSummary: TextView
+    private lateinit var txtEngine: TextView
     private lateinit var progress: ProgressBar
     private lateinit var btnOptimize: Button
     private lateinit var btnAnalyze: Button
     private lateinit var rdoQualidade: RadioButton
     private lateinit var rdoLeve: RadioButton
+    private lateinit var rdoAndroid: RadioButton
     private lateinit var chkExif: CheckBox
     private lateinit var chkNoGps: CheckBox
 
@@ -70,11 +72,13 @@ class MainActivity : AppCompatActivity() {
         txtStatus = findViewById(R.id.txtStatus)
         txtCurrent = findViewById(R.id.txtCurrent)
         txtSummary = findViewById(R.id.txtSummary)
+        txtEngine = findViewById(R.id.txtEngine)
         progress = findViewById(R.id.progress)
         btnOptimize = findViewById(R.id.btnOptimize)
         btnAnalyze = findViewById(R.id.btnAnalyze)
         rdoQualidade = findViewById(R.id.rdoQualidade)
         rdoLeve = findViewById(R.id.rdoLeve)
+        rdoAndroid = findViewById(R.id.rdoAndroid)
         chkExif = findViewById(R.id.chkExif)
         chkNoGps = findViewById(R.id.chkNoGps)
 
@@ -82,6 +86,11 @@ class MainActivity : AppCompatActivity() {
         prefs.getString("source_uri", null)?.let { sourceUri = Uri.parse(it) }
         prefs.getString("dest_uri", null)?.let { destUri = Uri.parse(it) }
         updateLabels()
+        txtEngine.text = if (MozJpeg.available) {
+            "Motor: MozJPEG nativo disponível neste aparelho."
+        } else {
+            "Motor: MozJPEG indisponível — o lote usará o encoder Android."
+        }
         if (sourceUri != null) analyze()
 
         findViewById<Button>(R.id.btnSource).setOnClickListener { pickSource.launch(null) }
@@ -177,6 +186,7 @@ class MainActivity : AppCompatActivity() {
         }
         val mode = selectedMode()
         val keepExif = chkExif.isChecked
+        val useMozJpeg = !rdoAndroid.isChecked
         val removeGps = chkNoGps.isChecked
 
         running = true
@@ -198,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 val result = OptimizeEngine.optimizeOne(
                     this@MainActivity, file, parent,
-                    mode.quality, keepExif, removeGps, relative
+                    mode.quality, keepExif, removeGps, relative, useMozJpeg
                 )
                 results.add(result)
                 done++
@@ -231,7 +241,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
-            val summaryText = "DX Otimiza 0.1.0 — modo ${mode.label}\n" +
+            val motorLabel = if (!useMozJpeg) "Android"
+                else if (MozJpeg.available) "MozJPEG"
+                else "Android (fallback, MozJPEG indisponível)"
+            val summaryText = "JPG Otimiza 0.2.0 — modo ${mode.label} — motor $motorLabel\n" +
                 "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
                 "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
                 "Depois: ${SafTree.formatBytes(newTotal)}\n" +
@@ -246,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 txtStatus.text = "Pronto: ${results.size} arquivos."
                 txtCurrent.text = ""
-                txtSummary.text = "Antes: ${SafTree.formatBytes(originalTotal)} → " +
+                txtSummary.text = "Motor: $motorLabel. Antes: ${SafTree.formatBytes(originalTotal)} → " +
                     "Depois: ${SafTree.formatBytes(newTotal)} " +
                     "(economia ${"%.1f".format(saved)}%). " +
                     "Otimizados: $optimized, mantidos: $kept, falhas: $failed. " +

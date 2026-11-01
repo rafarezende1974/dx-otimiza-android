@@ -10,7 +10,11 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Motor da v0.1.
+ * Motor da v0.2 (JPG Otimiza).
+ *
+ * Motor padrão agora é o MozJPEG nativo (progressivo + trellis),
+ * com fallback automático para o encoder Android da v0.1 se a
+ * biblioteca nativa não carregar ou falhar numa foto.
  *
  * Regras que não mudam:
  * - A origem nunca é alterada: o app só lê dela. O resultado vai para
@@ -23,11 +27,12 @@ import java.io.FileOutputStream
  * - Um arquivo por vez, em sequência, para não estourar a memória
  *   com fotos grandes da câmera.
  *
- * Limite honesto da v0.1: a qualidade é fixa por modo (92 / 85 / 75).
- * Não há análise perceptual por foto como no JPEGmini, nem MozJPEG
- * via NDK — isso fica para a v0.2. O ganho vem de fotos que saíram
- * da câmera ou do editor em qualidade muito alta (95-100), onde
- * 85 costuma cortar bastante sem diferença visível.
+ * Limite honesto da v0.2: a qualidade ainda é fixa por modo
+ * (92 / 85 / 75) — o MozJPEG dá arquivo menor na mesma qualidade,
+ * mas ainda não escolhe a qualidade por foto como o JPEGmini.
+ * O ganho vem de fotos que saíram da câmera ou do editor em
+ * qualidade muito alta (95-100), onde 85 costuma cortar bastante
+ * sem diferença visível.
  */
 object OptimizeEngine {
 
@@ -93,7 +98,8 @@ object OptimizeEngine {
         quality: Int,
         keepExif: Boolean,
         removeGps: Boolean,
-        relativePath: String = ""
+        relativePath: String = "",
+        useMozJpeg: Boolean = true
     ): Item {
         val name = source.name ?: "foto.jpg"
         val originalBytes = source.length()
@@ -126,11 +132,21 @@ object OptimizeEngine {
 
             // 3) Recomprime para um arquivo temporário no cache do app
             // (nunca direto no destino, para não deixar arquivo parcial).
-            val temp = File(context.cacheDir, "dxotimiza_tmp.jpg")
+            // Primeiro tenta o MozJPEG nativo; se ele não estiver
+            // disponível ou falhar, cai para o encoder Android.
+            val temp = File(context.cacheDir, "jpgotimiza_tmp.jpg")
             try {
-                FileOutputStream(temp).use { out ->
-                    rotated.compress(Bitmap.CompressFormat.JPEG, quality, out)
-                    out.flush()
+                val mozBytes = if (useMozJpeg) MozJpeg.compress(rotated, quality) else null
+                if (mozBytes != null && mozBytes.isNotEmpty()) {
+                    FileOutputStream(temp).use { out ->
+                        out.write(mozBytes)
+                        out.flush()
+                    }
+                } else {
+                    FileOutputStream(temp).use { out ->
+                        rotated.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                        out.flush()
+                    }
                 }
             } finally {
                 rotated.recycle()

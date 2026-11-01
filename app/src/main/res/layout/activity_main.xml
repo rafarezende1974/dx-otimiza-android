@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DX Otimiza 0.1.0"
+            android:text="JPG Otimiza 0.2.0"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Reduz o peso dos JPGs sem mudar a resolução. A origem nunca é alterada: o resultado vai para a pasta de destino, com o mesmo nome. Se a versão nova ficar maior, a original é copiada sem alteração." />
+            android:text="Reduz o peso dos JPGs sem mudar a resolução, com o motor MozJPEG (progressivo + trellis). A origem nunca é alterada: o resultado vai para a pasta de destino, com o mesmo nome. Se a versão nova ficar maior, a original é copiada sem alteração. Se o motor nativo falhar, o app usa o encoder Android sem quebrar o lote." />
 
         <TextView
             android:id="@+id/txtSource"
@@ -79,6 +79,39 @@
                 android:layout_height="wrap_content"
                 android:text="Leve (75) — máxima economia, olhe antes de entregar" />
         </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Motor"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupEngine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rdoMozJpeg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="MozJPEG (nativo) — menor arquivo na mesma qualidade" />
+
+            <RadioButton
+                android:id="@+id/rdoAndroid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Android (padrão) — igual à v0.1" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/txtEngine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="" />
 
         <CheckBox
             android:id="@+id/chkExif"

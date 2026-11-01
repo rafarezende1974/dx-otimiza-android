@@ -1,11 +1,16 @@
 # ============================================================
-# DX Otimiza Android - workflow de build do APK
+# JPG Otimiza Android v0.2 - workflow de build do APK
 #
-# COMO USAR: no site do GitHub, crie o arquivo
+# COMO USAR: no site do GitHub, edite o arquivo
 #   .github/workflows/build-apk.yml
-# e cole TODO o conteudo deste arquivo nele.
+# e cole TODO o conteudo deste arquivo nele, substituindo a v0.1.
 # (Este arquivo .txt fica na raiz do projeto de proposito:
 #  o push via API nao tem permissao de Workflows.)
+#
+# Diferença para a v0.1: instala também NDK 27.2 e CMake 3.22.1,
+# porque a v0.2 compila o MozJPEG via NDK (CMakeLists em
+# app/src/main/cpp). O MozJPEG é baixado pelo CMake na hora do
+# build; não vai commitado no repo.
 # ============================================================
 
 name: Build APK
@@ -33,11 +38,11 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar Android SDK 34
+      - name: Instalar Android SDK 34, NDK e CMake
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0"
+          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
 
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v3
@@ -50,5 +55,5 @@ jobs:
       - name: Upload do APK
         uses: actions/upload-artifact@v4
         with:
-          name: dx-otimiza-apk
+          name: jpg-otimiza-apk
           path: app/build/outputs/apk/debug/app-debug.apk

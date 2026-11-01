@@ -8,12 +8,30 @@ android {
     compileSdk = 34
 
     defaultConfig {
+        // Pacote mantido da v0.1 de propósito: o push via API não apaga
+        // arquivos, então trocar o pacote deixaria as classes antigas
+        // órfãs no repo. O nome exibido muda para JPG Otimiza em
+        // strings.xml; o pacote só mudaria numa v1 para a Play.
         applicationId = "br.com.dxlabs.dxotimiza"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
+        ndk {
+            // Tab S9+ é arm64-v8a. Só essa ABI na v0.2, para o build
+            // do MozJPEG ser um só e mais rápido.
+            abiFilters += "arm64-v8a"
+        }
     }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+
+    ndkVersion = "27.2.12479018"
 
     buildTypes {
         release {
