@@ -22,14 +22,22 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
 )
 
-# Só a biblioteca. Sem ferramentas (cjpeg/djpeg), sem Java, sem
-# biblioteca compartilhada separada: o .a estático entra no nosso .so.
+# Só a biblioteca. Sem Java, sem biblioteca compartilhada separada:
+# o .a estático entra no nosso .so.
+#
+# Correção do build nº 3 (run 41257061485): o CMake do MozJPEG
+# exige libpng quando PNG_SUPPORTED está ligado, porque ele compila
+# o cjpeg-static junto com a biblioteca — e o runner não tem
+# libpng. Como o app não usa PNG nem o cjpeg, desligar PNG resolve
+# sem instalar nada no runner.
+# (WITH_TOOLS não existe no CMake do MozJPEG; a v0.2 anterior o
+# definia à toa e o cjpeg-static continuava sendo compilado.)
 set(WITH_JAVA OFF CACHE BOOL "" FORCE)
-set(WITH_TOOLS OFF CACHE BOOL "" FORCE)
 set(WITH_TURBOJPEG OFF CACHE BOOL "" FORCE)
 set(ENABLE_SHARED OFF CACHE BOOL "" FORCE)
 set(ENABLE_STATIC ON CACHE BOOL "" FORCE)
 set(WITH_SIMD ON CACHE BOOL "" FORCE)
+set(PNG_SUPPORTED OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(mozjpeg)
 
 add_library(jpgotimiza SHARED mozjpeg_jni.cpp)
@@ -40,7 +48,8 @@ target_include_directories(jpgotimiza PRIVATE
     ${mozjpeg_BINARY_DIR}
 )
 
-# Nome do alvo da biblioteca no CMake do MozJPEG/libjpeg-turbo.
-# Se o build falhar com "target jpeg not found", o nome correto
-# está no CMakeLists.txt do MozJPEG baixado (alvos jpeg/jpeg-static).
-target_link_libraries(jpgotimiza jpeg log)
+# Alvo da biblioteca: com ENABLE_SHARED OFF, o CMake do MozJPEG
+# cria só "jpeg-static" (não "jpeg" — esse só existe com a versão
+# compartilhada). Ligar contra "jpeg" aqui foi o segundo erro
+# embutido na v0.2, que apareceria logo depois do PNG.
+target_link_libraries(jpgotimiza jpeg-static log)
