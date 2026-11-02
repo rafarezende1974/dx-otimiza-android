@@ -13,6 +13,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
@@ -32,19 +33,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtStatus: TextView
     private lateinit var txtCurrent: TextView
     private lateinit var txtSummary: TextView
-    private lateinit var txtEngine: TextView
     private lateinit var txtSavedTotal: TextView
     private lateinit var txtSavedDetail: TextView
     private lateinit var txtPreviewHint: TextView
+    private lateinit var txtOptionsSummary: TextView
     private lateinit var imgPreview: ImageView
     private lateinit var progress: ProgressBar
     private lateinit var btnOptimize: Button
     private lateinit var btnAnalyze: Button
-    private lateinit var rdoQualidade: RadioButton
-    private lateinit var rdoLeve: RadioButton
-    private lateinit var rdoAndroid: RadioButton
-    private lateinit var chkExif: CheckBox
-    private lateinit var chkNoGps: CheckBox
+    private lateinit var btnOptions: Button
+
+    // v0.4: opções vivem no menu "Opções", não na tela principal.
+    private var selectedMode: OptimizeEngine.Mode = OptimizeEngine.Mode.EQUILIBRIO
+    private var keepExifState: Boolean = true
+    private var removeGpsState: Boolean = false
 
     private val pickSource = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -78,35 +80,68 @@ class MainActivity : AppCompatActivity() {
         txtStatus = findViewById(R.id.txtStatus)
         txtCurrent = findViewById(R.id.txtCurrent)
         txtSummary = findViewById(R.id.txtSummary)
-        txtEngine = findViewById(R.id.txtEngine)
         txtSavedTotal = findViewById(R.id.txtSavedTotal)
         txtSavedDetail = findViewById(R.id.txtSavedDetail)
         txtPreviewHint = findViewById(R.id.txtPreviewHint)
+        txtOptionsSummary = findViewById(R.id.txtOptionsSummary)
         imgPreview = findViewById(R.id.imgPreview)
         progress = findViewById(R.id.progress)
         btnOptimize = findViewById(R.id.btnOptimize)
         btnAnalyze = findViewById(R.id.btnAnalyze)
-        rdoQualidade = findViewById(R.id.rdoQualidade)
-        rdoLeve = findViewById(R.id.rdoLeve)
-        rdoAndroid = findViewById(R.id.rdoAndroid)
-        chkExif = findViewById(R.id.chkExif)
-        chkNoGps = findViewById(R.id.chkNoGps)
+        btnOptions = findViewById(R.id.btnOptions)
 
         val prefs = getSharedPreferences("dxotimiza", MODE_PRIVATE)
         prefs.getString("source_uri", null)?.let { sourceUri = Uri.parse(it) }
         prefs.getString("dest_uri", null)?.let { destUri = Uri.parse(it) }
         updateLabels()
-        txtEngine.text = if (MozJpeg.available) {
-            "Motor: MozJPEG nativo disponível neste aparelho."
-        } else {
-            "Motor: MozJPEG indisponível — o lote usará o encoder Android."
-        }
+        updateOptionsSummary()
         if (sourceUri != null) analyze()
 
         findViewById<Button>(R.id.btnSource).setOnClickListener { pickSource.launch(null) }
         findViewById<Button>(R.id.btnDest).setOnClickListener { pickDest.launch(null) }
         btnAnalyze.setOnClickListener { analyze() }
         btnOptimize.setOnClickListener { optimize() }
+        btnOptions.setOnClickListener { showOptionsDialog() }
+    }
+
+    private fun updateOptionsSummary() {
+        val exif = if (keepExifState) {
+            if (removeGpsState) "EXIF mantido, sem GPS" else "EXIF mantido"
+        } else {
+            "sem EXIF"
+        }
+        txtOptionsSummary.text = "${selectedMode.label} • $exif"
+    }
+
+    private fun showOptionsDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_options, null)
+        val rdoQualidade = view.findViewById<RadioButton>(R.id.rdoQualidadeDialog)
+        val rdoEquilibrio = view.findViewById<RadioButton>(R.id.rdoEquilibrioDialog)
+        val rdoLeve = view.findViewById<RadioButton>(R.id.rdoLeveDialog)
+        val chkExif = view.findViewById<CheckBox>(R.id.chkExifDialog)
+        val chkNoGps = view.findViewById<CheckBox>(R.id.chkNoGpsDialog)
+        when (selectedMode) {
+            OptimizeEngine.Mode.QUALIDADE -> rdoQualidade.isChecked = true
+            OptimizeEngine.Mode.LEVE -> rdoLeve.isChecked = true
+            else -> rdoEquilibrio.isChecked = true
+        }
+        chkExif.isChecked = keepExifState
+        chkNoGps.isChecked = removeGpsState
+        AlertDialog.Builder(this)
+            .setTitle("Opções")
+            .setView(view)
+            .setPositiveButton("Salvar") { _, _ ->
+                selectedMode = when {
+                    rdoQualidade.isChecked -> OptimizeEngine.Mode.QUALIDADE
+                    rdoLeve.isChecked -> OptimizeEngine.Mode.LEVE
+                    else -> OptimizeEngine.Mode.EQUILIBRIO
+                }
+                keepExifState = chkExif.isChecked
+                removeGpsState = chkNoGps.isChecked
+                updateOptionsSummary()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun takePermission(uri: Uri) {
@@ -144,11 +179,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun selectedMode(): OptimizeEngine.Mode {
-        return when {
-            rdoQualidade.isChecked -> OptimizeEngine.Mode.QUALIDADE
-            rdoLeve.isChecked -> OptimizeEngine.Mode.LEVE
-            else -> OptimizeEngine.Mode.EQUILIBRIO
-        }
+        return selectedMode
     }
 
     private fun analyze() {
@@ -224,9 +255,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val mode = selectedMode()
-        val keepExif = chkExif.isChecked
-        val useMozJpeg = !rdoAndroid.isChecked
-        val removeGps = chkNoGps.isChecked
+        val keepExif = keepExifState
+        val removeGps = removeGpsState
 
         running = true
         btnOptimize.isEnabled = false
@@ -247,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 val result = OptimizeEngine.optimizeOne(
                     this@MainActivity, file, parent,
-                    mode.quality, keepExif, removeGps, relative, useMozJpeg
+                    mode.quality, keepExif, removeGps, relative
                 )
                 results.add(result)
                 done++
@@ -280,10 +310,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
-            val motorLabel = if (!useMozJpeg) "Android"
-                else if (MozJpeg.available) "MozJPEG"
-                else "Android (fallback, MozJPEG indisponível)"
-            val summaryText = "JPG Otimiza 0.3.0 — modo ${mode.label} — motor $motorLabel\n" +
+            val motorLabel = "Android"
+            val summaryText = "JPG Otimiza 0.4.0 — modo ${mode.label} — motor $motorLabel\n" +
                 "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
                 "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
                 "Depois: ${SafTree.formatBytes(newTotal)}\n" +

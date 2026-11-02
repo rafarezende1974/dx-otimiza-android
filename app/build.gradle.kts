@@ -15,23 +15,12 @@ android {
         applicationId = "br.com.dxlabs.dxotimiza"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.3.0"
-        ndk {
-            // Tab S9+ é arm64-v8a. Só essa ABI na v0.2, para o build
-            // do MozJPEG ser um só e mais rápido.
-            abiFilters += "arm64-v8a"
-        }
+        versionCode = 4
+        versionName = "0.4.0"
+        // v0.4: sem NDK. O MozJPEG foi removido (lento na Tab) e o
+        // app voltou ao encoder Android da v0.1. O workflow ainda
+        // instala NDK/CMake, sem uso — limpeza opcional, não obrigatória.
     }
-
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-
-    ndkVersion = "27.2.12479018"
 
     buildTypes {
         release {

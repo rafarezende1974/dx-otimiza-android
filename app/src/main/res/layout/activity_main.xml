@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Visual v0.3: fundo escuro, contador grande de economia no topo
-     e prévia da primeira foto da pasta, no espírito do JPEGmini
-     (sem copiar nome, logo ou textos dele). Todos os IDs usados
-     pela MainActivity foram mantidos; os novos são txtSavedTotal,
-     txtSavedDetail, imgPreview e txtPreviewHint. -->
+<!-- Visual v0.4: tela leve. Qualidade, EXIF e GPS saíram daqui
+     e foram para o menu "Opções" (dialog_options.xml); na tela
+     principal fica só um resumo de uma linha (txtOptionsSummary).
+     Motor: só Android, MozJPEG removido. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -97,6 +96,25 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#374151"
+            android:text="⋮ Opções (qualidade, EXIF, GPS)"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/txtOptionsSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center_horizontal"
+            android:text="Equilíbrio (85) • EXIF mantido"
+            android:textColor="#CBD5E1"
+            android:textSize="13sp" />
+
         <TextView
             android:id="@+id/txtSource"
             android:layout_width="match_parent"
@@ -129,94 +147,7 @@
             android:text="2) Escolher pasta de destino"
             android:textColor="#FFFFFF" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Qualidade (fixa por modo, sem análise perceptual por foto)"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold" />
 
-        <RadioGroup
-            android:id="@+id/radioGroupMode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <RadioButton
-                android:id="@+id/rdoQualidade"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Qualidade (92) — menos economia, mais segurança"
-                android:textColor="#F8FAFC" />
-
-            <RadioButton
-                android:id="@+id/rdoEquilibrio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Equilíbrio (85) — recomendado para entrega"
-                android:textColor="#F8FAFC" />
-
-            <RadioButton
-                android:id="@+id/rdoLeve"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Leve (75) — máxima economia, olhe antes de entregar"
-                android:textColor="#F8FAFC" />
-        </RadioGroup>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Motor"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupEngine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <RadioButton
-                android:id="@+id/rdoMozJpeg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="MozJPEG (nativo) — menor arquivo na mesma qualidade"
-                android:textColor="#F8FAFC" />
-
-            <RadioButton
-                android:id="@+id/rdoAndroid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Android (padrão) — igual à v0.1"
-                android:textColor="#F8FAFC" />
-        </RadioGroup>
-
-        <TextView
-            android:id="@+id/txtEngine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text=""
-            android:textColor="#CBD5E1" />
-
-        <CheckBox
-            android:id="@+id/chkExif"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:checked="true"
-            android:text="Manter EXIF (câmera, data, lente)"
-            android:textColor="#F8FAFC" />
-
-        <CheckBox
-            android:id="@+id/chkNoGps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Remover localização GPS do EXIF"
-            android:textColor="#F8FAFC" />
 
         <Button
             android:id="@+id/btnAnalyze"

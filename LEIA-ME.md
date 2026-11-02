@@ -1,4 +1,18 @@
-# JPG Otimiza Android v0.3.0
+# JPG Otimiza Android v0.4.0
+
+## O que a v0.4 muda
+
+- **MozJPEG removido:** o trellis deixava o lote muito lento na Tab.
+  O app voltou ao encoder Android da v0.1, já validada. Os arquivos
+  em `src/main/cpp/` e o `MozJpeg.kt` ficam órfãos no repo (o push
+  via API não apaga arquivos), mas não compilam nem carregam nada:
+  o `externalNativeBuild` saiu do `build.gradle.kts` e o stub do
+  `MozJpeg` sempre retorna null.
+- **Tela mais leve:** qualidade, EXIF e GPS saíram da tela principal
+  e foram para o menu "Opções" (`dialog_options.xml`); na tela fica
+  só um resumo de uma linha ("Equilíbrio (85) • EXIF mantido").
+  O workflow ainda instala NDK/CMake, sem uso — limpeza opcional.
+
 
 ## O que a v0.3 muda (visual)
 

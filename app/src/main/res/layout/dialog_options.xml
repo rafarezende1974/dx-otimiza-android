@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Menu de opções da v0.4: qualidade, EXIF e GPS saíram da tela
+     principal e vivem aqui, para a tela ficar mais leve. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Qualidade"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupModeDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rdoQualidadeDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Qualidade (92) — menos economia, mais segurança"
+            android:textColor="#F8FAFC" />
+
+        <RadioButton
+            android:id="@+id/rdoEquilibrioDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Equilíbrio (85) — recomendado para entrega"
+            android:textColor="#F8FAFC" />
+
+        <RadioButton
+            android:id="@+id/rdoLeveDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leve (75) — máxima economia, olhe antes de entregar"
+            android:textColor="#F8FAFC" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/chkExifDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:checked="true"
+        android:text="Manter EXIF (câmera, data, lente)"
+        android:textColor="#F8FAFC" />
+
+    <CheckBox
+        android:id="@+id/chkNoGpsDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remover localização GPS do EXIF"
+        android:textColor="#F8FAFC" />
+
+</LinearLayout>

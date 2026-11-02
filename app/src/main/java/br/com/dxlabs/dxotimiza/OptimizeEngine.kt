@@ -98,8 +98,7 @@ object OptimizeEngine {
         quality: Int,
         keepExif: Boolean,
         removeGps: Boolean,
-        relativePath: String = "",
-        useMozJpeg: Boolean = true
+        relativePath: String = ""
     ): Item {
         val name = source.name ?: "foto.jpg"
         val originalBytes = source.length()
@@ -132,21 +131,14 @@ object OptimizeEngine {
 
             // 3) Recomprime para um arquivo temporário no cache do app
             // (nunca direto no destino, para não deixar arquivo parcial).
-            // Primeiro tenta o MozJPEG nativo; se ele não estiver
-            // disponível ou falhar, cai para o encoder Android.
+            // v0.4: só o encoder Android. O MozJPEG foi removido porque
+            // o trellis deixava o lote muito lento na Tab; o encoder
+            // Android é o mesmo da v0.1, que já tinha sido validada.
             val temp = File(context.cacheDir, "jpgotimiza_tmp.jpg")
             try {
-                val mozBytes = if (useMozJpeg) MozJpeg.compress(rotated, quality) else null
-                if (mozBytes != null && mozBytes.isNotEmpty()) {
-                    FileOutputStream(temp).use { out ->
-                        out.write(mozBytes)
-                        out.flush()
-                    }
-                } else {
-                    FileOutputStream(temp).use { out ->
-                        rotated.compress(Bitmap.CompressFormat.JPEG, quality, out)
-                        out.flush()
-                    }
+                FileOutputStream(temp).use { out ->
+                    rotated.compress(Bitmap.CompressFormat.JPEG, quality, out)
+                    out.flush()
                 }
             } finally {
                 rotated.recycle()
