@@ -8,6 +8,9 @@
   no fundo escuro), ocupando o cabeçalho sozinha, com espaçamento
   no topo e à esquerda, para não ficar grudada na borda da tela.
   O PNG foi subido por ele pela web (binário não vai pelo push).
+- **Fundo da tela trocado para cinza (#4B5563):** antes era o azul
+  quase preto #111827. Cartões continuam mais escuros (#1F2937) para
+  contraste, e o texto branco continua legível sobre o cinza.
 - **Texto removido:** o subtítulo "Motor MozJPEG • a origem nunca é
   alterada" saiu da tela principal — o MozJPEG foi removido na v0.4
   e o texto estava desatualizado. Nenhuma função mudou: só o cabeçalho.
