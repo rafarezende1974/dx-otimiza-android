@@ -1,0 +1,77 @@
+# ============================================================
+# JPG Diet Android v1.0.0 - workflow de build do AAB (Play)
+#
+# COMO USAR: no site do GitHub, crie o arquivo
+#   .github/workflows/build-aab.yml
+# e cole TODO o conteudo deste arquivo nele.
+# (O push via API nao tem permissao de Workflows.)
+#
+# ANTES de criar este workflow, crie no repo os 4 segredos
+# (Settings > Secrets and variables > Actions), com os MESMOS
+# valores da chave de upload DX Labs usada no Teleprompter:
+#   UPLOAD_KEYSTORE_B64 - keystore em base64
+#   KEYSTORE_PASSWORD   - senha do keystore
+#   KEY_ALIAS           - alias da chave (upload)
+#   KEY_PASSWORD        - senha da chave
+#
+# Este workflow só deve ser criado DEPOIS que o código da v1.0.0
+# (API 36 + signingConfig) já estiver na main; criá-lo antes faz
+# o build de release rodar sobre o código antigo e falhar.
+# ============================================================
+
+name: Build AAB (Play)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar Android SDK 36
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Setup Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Preparar chave de assinatura
+        env:
+          KS_B64: ${{ secrets.UPLOAD_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KS_B64" ]; then echo "Segredo UPLOAD_KEYSTORE_B64 nao configurado"; exit 1; fi
+          echo "$KS_B64" | base64 -d > /tmp/upload-key.p12
+
+      - name: Build AAB release assinado
+        env:
+          KEYSTORE_PATH: /tmp/upload-key.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: gradle bundleRelease --console=plain
+
+      - name: Upload do AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: jpg-diet-aab-play
+          path: app/build/outputs/bundle/release/app-release.aab
