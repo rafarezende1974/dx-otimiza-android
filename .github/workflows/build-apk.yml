@@ -1,16 +1,15 @@
 # ============================================================
-# JPG Otimiza Android v0.2 - workflow de build do APK
+# JPG Diet Android v1.0.0 - workflow de build do APK (debug)
 #
 # COMO USAR: no site do GitHub, edite o arquivo
 #   .github/workflows/build-apk.yml
-# e cole TODO o conteudo deste arquivo nele, substituindo a v0.1.
+# e cole TODO o conteudo deste arquivo nele, substituindo a v0.5.
 # (Este arquivo .txt fica na raiz do projeto de proposito:
 #  o push via API nao tem permissao de Workflows.)
 #
-# Diferença para a v0.1: instala também NDK 27.2 e CMake 3.22.1,
-# porque a v0.2 compila o MozJPEG via NDK (CMakeLists em
-# app/src/main/cpp). O MozJPEG é baixado pelo CMake na hora do
-# build; não vai commitado no repo.
+# Diferença para a v0.5: SDK 36 (exigência da Play para app novo
+# desde 31/08/2026) e Gradle 8.11.1 (exigido pelo AGP 8.10.1).
+# Sem NDK/CMake: o MozJPEG foi removido na v0.4.
 # ============================================================
 
 name: Build APK
@@ -38,16 +37,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar Android SDK 34, NDK e CMake
+      - name: Instalar Android SDK 36
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Setup Gradle 8.7
+      - name: Setup Gradle 8.11.1
         uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.11.1'
 
       - name: Build debug APK
         run: gradle assembleDebug --console=plain
@@ -55,5 +54,5 @@ jobs:
       - name: Upload do APK
         uses: actions/upload-artifact@v4
         with:
-          name: jpg-otimiza-apk
+          name: jpg-diet-apk
           path: app/build/outputs/apk/debug/app-debug.apk
