@@ -1,4 +1,10 @@
-# JPG Otimiza Android v0.5.0
+# JPG Diet Android v0.5.1 (antes JPG Otimiza)
+
+## O que a v0.5.1 muda
+
+- Nome exibido trocado para **JPG Diet**, combinando com o ícone
+  da lata. Pacote interno continua `br.com.dxlabs.dxotimiza` e o
+  tema interno continua `Theme.JpgOtimiza` — só o nome visível mudou.
 
 ## O que a v0.5 muda
 

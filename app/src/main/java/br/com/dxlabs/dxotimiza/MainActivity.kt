@@ -355,7 +355,7 @@ class MainActivity : AppCompatActivity() {
             SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
             val motorLabel = "Android"
             val destLabel = if (overwriteState) "substituir originais" else "outra pasta"
-            val summaryText = "JPG Otimiza 0.5.0 — modo ${mode.label} — motor $motorLabel — destino $destLabel\n" +
+            val summaryText = "JPG Diet 0.5.1 — modo ${mode.label} — motor $motorLabel — destino $destLabel\n" +
                 "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
                 "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
                 "Depois: ${SafTree.formatBytes(newTotal)}\n" +
