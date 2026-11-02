@@ -14,35 +14,20 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-<!-- Cabeçalho v2.0.0: logo do app ao lado do nome, com espaçamento
-     no topo e à esquerda, para não ficar grudado na borda da tela.
-     O subtítulo antigo ("Motor MozJPEG...") foi removido: o MozJPEG
-     saiu do app na v0.4 e o texto estava desatualizado. -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+<!-- Cabeçalho v2.0.0 (logo em texto): a logo "JPG Diet" enviada
+     por ele (logo_jpg_diet.png, variante para fundo escuro: JPG em
+     branco, Diet em vermelho, fundo transparente) ocupa o cabeçalho
+     sozinha — o texto do nome não é repetido, porque já está na logo.
+     Espaçamento no topo e à esquerda, para não ficar grudada na borda. -->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Logo JPG Diet"
-                android:padding="4dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_launcher_photo" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="JPG Diet"
-                android:textColor="#FFFFFF"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
+            android:adjustViewBounds="true"
+            android:contentDescription="Logo JPG Diet"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo_jpg_diet" />
 
         <!-- Contador de economia, como o "total saved" do JPEGmini -->
         <LinearLayout

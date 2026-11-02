@@ -2,10 +2,12 @@
 
 ## O que a v2.0.0 muda
 
-- **Cabeçalho novo:** logo do app (foto da lata, `@drawable/ic_launcher_photo`)
-  ao lado do nome "JPG Diet", com espaçamento no topo e à esquerda
-  (margem superior de 8dp + padding de 16dp do ScrollView + 4dp de
-  padding no próprio logo), para não ficar grudado na borda da tela.
+- **Cabeçalho novo:** logo em texto "JPG Diet" enviada por ele
+  (`logo_jpg_diet.png`, variante para fundo escuro: JPG em branco,
+  Diet em vermelho, fundo transparente — o JPG preto original some
+  no fundo escuro), ocupando o cabeçalho sozinha, com espaçamento
+  no topo e à esquerda, para não ficar grudada na borda da tela.
+  O PNG foi subido por ele pela web (binário não vai pelo push).
 - **Texto removido:** o subtítulo "Motor MozJPEG • a origem nunca é
   alterada" saiu da tela principal — o MozJPEG foi removido na v0.4
   e o texto estava desatualizado. Nenhuma função mudou: só o cabeçalho.
