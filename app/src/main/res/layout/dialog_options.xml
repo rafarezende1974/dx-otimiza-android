@@ -42,6 +42,35 @@
             android:textColor="#F8FAFC" />
     </RadioGroup>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Destino"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupDestDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rdoDestOtherDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Outra pasta (padrão, originais intactos)"
+            android:textColor="#F8FAFC" />
+
+        <RadioButton
+            android:id="@+id/rdoDestOverwriteDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Substituir os originais na mesma pasta (irreversível)"
+            android:textColor="#F8FAFC" />
+    </RadioGroup>
+
     <CheckBox
         android:id="@+id/chkExifDialog"
         android:layout_width="match_parent"

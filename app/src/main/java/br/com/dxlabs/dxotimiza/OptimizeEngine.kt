@@ -98,7 +98,8 @@ object OptimizeEngine {
         quality: Int,
         keepExif: Boolean,
         removeGps: Boolean,
-        relativePath: String = ""
+        relativePath: String = "",
+        overwrite: Boolean = false
     ): Item {
         val name = source.name ?: "foto.jpg"
         val originalBytes = source.length()
@@ -148,9 +149,16 @@ object OptimizeEngine {
                 return Item(name, relativePath, originalBytes, originalBytes, Status.FALHOU)
             }
 
-            // 4) Se não ganhou nada, copia a original sem alteração.
+            // 4) Se não ganhou nada, a original fica intacta.
+            // Em modo outra-pasta, ela é copiada sem alteração para o
+            // destino e marcada "mantida". Em modo substituir, NÃO se
+            // toca no arquivo: criar o destino aqui apagaria a própria
+            // original antes da cópia, então retorna direto.
             if (temp.length() >= originalBytes) {
                 temp.delete()
+                if (overwrite) {
+                    return Item(name, relativePath, originalBytes, originalBytes, Status.MANTIDO)
+                }
                 val dest = createDestFile(context, destParent, name) ?: return Item(
                     name, "", originalBytes, originalBytes, Status.FALHOU
                 )
@@ -175,7 +183,10 @@ object OptimizeEngine {
                 }
             }
 
-            // 6) Publica o temporário no destino.
+            // 6) Publica o temporário no destino. Em modo substituir,
+            // destParent é a própria pasta da original e o nome é o
+            // mesmo: createDestFile apaga a original e recria o arquivo
+            // com o conteúdo do temporário (já completo e verificado).
             val dest = createDestFile(context, destParent, name) ?: run {
                 temp.delete()
                 return Item(name, relativePath, originalBytes, originalBytes, Status.FALHOU)

@@ -1,4 +1,15 @@
-# JPG Otimiza Android v0.4.0
+# JPG Otimiza Android v0.5.0
+
+## O que a v0.5 muda
+
+- **Destino com duas opções no menu Opções:** outra pasta (padrão,
+  originais intactos) ou substituir os originais na mesma pasta.
+  Substituir é opt-in, pede confirmação antes de cada lote e só
+  substitui arquivos que ficarem menores; os demais e as falhas
+  ficam intactos. O temporário é gerado completo no cache antes de
+  trocar com a original, e o relatório vai para a pasta de destino
+  (na própria origem, em modo substituir).
+
 
 ## O que a v0.4 muda
 

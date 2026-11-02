@@ -42,11 +42,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnOptimize: Button
     private lateinit var btnAnalyze: Button
     private lateinit var btnOptions: Button
+    private lateinit var btnDest: Button
 
     // v0.4: opções vivem no menu "Opções", não na tela principal.
     private var selectedMode: OptimizeEngine.Mode = OptimizeEngine.Mode.EQUILIBRIO
     private var keepExifState: Boolean = true
     private var removeGpsState: Boolean = false
+    // v0.5: false = outra pasta (padrão, seguro); true = substituir.
+    private var overwriteState: Boolean = false
 
     private val pickSource = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -89,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         btnOptimize = findViewById(R.id.btnOptimize)
         btnAnalyze = findViewById(R.id.btnAnalyze)
         btnOptions = findViewById(R.id.btnOptions)
+        btnDest = findViewById(R.id.btnDest)
 
         val prefs = getSharedPreferences("dxotimiza", MODE_PRIVATE)
         prefs.getString("source_uri", null)?.let { sourceUri = Uri.parse(it) }
@@ -110,7 +114,15 @@ class MainActivity : AppCompatActivity() {
         } else {
             "sem EXIF"
         }
-        txtOptionsSummary.text = "${selectedMode.label} • $exif"
+        val dest = if (overwriteState) "Substituir originais" else "Outra pasta"
+        txtOptionsSummary.text = "${selectedMode.label} • $exif • $dest"
+        if (overwriteState) {
+            txtDest.text = "Destino: mesma pasta — substituir originais"
+            btnDest.isEnabled = false
+        } else {
+            btnDest.isEnabled = true
+            updateLabels()
+        }
     }
 
     private fun showOptionsDialog() {
@@ -120,6 +132,8 @@ class MainActivity : AppCompatActivity() {
         val rdoLeve = view.findViewById<RadioButton>(R.id.rdoLeveDialog)
         val chkExif = view.findViewById<CheckBox>(R.id.chkExifDialog)
         val chkNoGps = view.findViewById<CheckBox>(R.id.chkNoGpsDialog)
+        val rdoDestOther = view.findViewById<RadioButton>(R.id.rdoDestOtherDialog)
+        val rdoDestOverwrite = view.findViewById<RadioButton>(R.id.rdoDestOverwriteDialog)
         when (selectedMode) {
             OptimizeEngine.Mode.QUALIDADE -> rdoQualidade.isChecked = true
             OptimizeEngine.Mode.LEVE -> rdoLeve.isChecked = true
@@ -127,6 +141,7 @@ class MainActivity : AppCompatActivity() {
         }
         chkExif.isChecked = keepExifState
         chkNoGps.isChecked = removeGpsState
+        if (overwriteState) rdoDestOverwrite.isChecked = true else rdoDestOther.isChecked = true
         AlertDialog.Builder(this)
             .setTitle("Opções")
             .setView(view)
@@ -138,6 +153,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 keepExifState = chkExif.isChecked
                 removeGpsState = chkNoGps.isChecked
+                overwriteState = rdoDestOverwrite.isChecked
                 updateOptionsSummary()
             }
             .setNegativeButton("Cancelar", null)
@@ -238,15 +254,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun optimize() {
+    private fun optimize(confirmedOverwrite: Boolean = false) {
         if (running) return
         val sourceRoot = sourceUri?.let { SafTree.root(this, it) }
-        val destRoot = destUri?.let { SafTree.root(this, it) }
-        if (sourceRoot == null || destRoot == null) {
+        if (sourceRoot == null) {
+            Toast.makeText(this, "Escolha a pasta de origem primeiro.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        // v0.5: em modo substituir, o destino é a própria origem e
+        // o botão de destino fica desabilitado. Confirmação obrigatória,
+        // porque substituir é irreversível.
+        if (overwriteState && !confirmedOverwrite) {
+            AlertDialog.Builder(this)
+                .setTitle("Substituir os originais?")
+                .setMessage(
+                    "Os arquivos otimizados vão substituir os originais " +
+                    "na mesma pasta. Isso é irreversível. Só arquivos que " +
+                    "ficarem menores serão substituídos; os demais e as " +
+                    "falhas ficam intactos."
+                )
+                .setPositiveButton("Substituir mesmo assim") { _, _ ->
+                    optimize(confirmedOverwrite = true)
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+            return
+        }
+        val destRoot = if (overwriteState) {
+            sourceRoot
+        } else {
+            destUri?.let { SafTree.root(this, it) }
+        }
+        if (destRoot == null) {
             Toast.makeText(this, "Escolha a origem e o destino primeiro.", Toast.LENGTH_SHORT).show()
             return
         }
-        if (sourceRoot.uri == destRoot.uri) {
+        if (!overwriteState && sourceRoot.uri == destRoot.uri) {
             Toast.makeText(
                 this,
                 "Destino igual à origem: escolha outra pasta, para a original não se misturar com a otimizada.",
@@ -277,7 +320,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 val result = OptimizeEngine.optimizeOne(
                     this@MainActivity, file, parent,
-                    mode.quality, keepExif, removeGps, relative
+                    mode.quality, keepExif, removeGps, relative, overwriteState
                 )
                 results.add(result)
                 done++
@@ -311,7 +354,8 @@ class MainActivity : AppCompatActivity() {
             }
             SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
             val motorLabel = "Android"
-            val summaryText = "JPG Otimiza 0.4.0 — modo ${mode.label} — motor $motorLabel\n" +
+            val destLabel = if (overwriteState) "substituir originais" else "outra pasta"
+            val summaryText = "JPG Otimiza 0.5.0 — modo ${mode.label} — motor $motorLabel — destino $destLabel\n" +
                 "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
                 "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
                 "Depois: ${SafTree.formatBytes(newTotal)}\n" +

@@ -15,8 +15,8 @@ android {
         applicationId = "br.com.dxlabs.dxotimiza"
         minSdk = 29
         targetSdk = 34
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 5
+        versionName = "0.5.0"
         // v0.4: sem NDK. O MozJPEG foi removido (lento na Tab) e o
         // app voltou ao encoder Android da v0.1. O workflow ainda
         // instala NDK/CMake, sem uso — limpeza opcional, não obrigatória.
