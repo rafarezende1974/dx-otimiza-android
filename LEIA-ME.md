@@ -1,4 +1,17 @@
-# JPG Diet Android v0.5.1 (antes JPG Otimiza)
+# JPG Diet Android v1.0.0 (antes JPG Otimiza)
+
+## Versão de loja (Play)
+
+- API 36 (compileSdk e targetSdk): exigência da Play para app novo
+  desde 31/08/2026. AGP 8.10.1 + Kotlin 2.0.21 + Gradle 8.11.1
+  (mesmo padrão do Teleprompter).
+- `WORKFLOW-RELEASE.yml.txt`: gera o AAB assinado
+  (`jpg-diet-aab-play`) com a chave de upload DX Labs, via 4 segredos
+  no repo (UPLOAD_KEYSTORE_B64, KEYSTORE_PASSWORD, KEY_ALIAS,
+  KEY_PASSWORD). O workflow de debug (`BUILD-WORKFLOW.yml.txt`)
+  continua gerando só o APK de teste.
+- Pacote na Play: `br.com.dxlabs.dxotimiza` (mantido da v0.1).
+
 
 ## O que a v0.5.1 muda
 

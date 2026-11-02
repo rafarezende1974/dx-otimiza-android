@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "br.com.dxlabs.dxotimiza"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         // Pacote mantido da v0.1 de propósito: o push via API não apaga
@@ -14,12 +14,29 @@ android {
         // strings.xml; o pacote só mudaria numa v1 para a Play.
         applicationId = "br.com.dxlabs.dxotimiza"
         minSdk = 29
-        targetSdk = 34
-        versionCode = 6
-        versionName = "0.5.1"
+        targetSdk = 36
+        versionCode = 7
+        versionName = "1.0.0"
         // v0.4: sem NDK. O MozJPEG foi removido (lento na Tab) e o
         // app voltou ao encoder Android da v0.1. O workflow ainda
         // instala NDK/CMake, sem uso — limpeza opcional, não obrigatória.
+    }
+
+    // Assinatura de release para a Play (mesmo padrão do Teleprompter):
+    // só ativa quando o workflow passa KEYSTORE_PATH e as senhas por
+    // variáveis de ambiente. Sem elas, o build de debug não muda nada
+    // e o bundleRelease fica sem assinatura.
+    signingConfigs {
+        create("release") {
+            val ksPath = System.getenv("KEYSTORE_PATH")
+            if (ksPath != null) {
+                storeFile = file(ksPath)
+                storeType = "PKCS12"
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS") ?: "upload"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -29,6 +46,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (System.getenv("KEYSTORE_PATH") != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
