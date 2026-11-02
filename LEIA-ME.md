@@ -1,3 +1,16 @@
+# JPG Diet Android v2.0.0 (antes 1.0.0)
+
+## O que a v2.0.0 muda
+
+- **Cabeçalho novo:** logo do app (foto da lata, `@drawable/ic_launcher_photo`)
+  ao lado do nome "JPG Diet", com espaçamento no topo e à esquerda
+  (margem superior de 8dp + padding de 16dp do ScrollView + 4dp de
+  padding no próprio logo), para não ficar grudado na borda da tela.
+- **Texto removido:** o subtítulo "Motor MozJPEG • a origem nunca é
+  alterada" saiu da tela principal — o MozJPEG foi removido na v0.4
+  e o texto estava desatualizado. Nenhuma função mudou: só o cabeçalho.
+- Versão: versionCode 8, versionName "2.0.0".
+
 # JPG Diet Android v1.0.0 (antes JPG Otimiza)
 
 ## Versão de loja (Play)

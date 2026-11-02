@@ -14,21 +14,35 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
+<!-- Cabeçalho v2.0.0: logo do app ao lado do nome, com espaçamento
+     no topo e à esquerda, para não ficar grudado na borda da tela.
+     O subtítulo antigo ("Motor MozJPEG...") foi removido: o MozJPEG
+     saiu do app na v0.4 e o texto estava desatualizado. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="JPG Diet"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Motor MozJPEG • a origem nunca é alterada"
-            android:textColor="#CBD5E1"
-            android:textSize="14sp" />
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="Logo JPG Diet"
+                android:padding="4dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_photo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JPG Diet"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <!-- Contador de economia, como o "total saved" do JPEGmini -->
         <LinearLayout
