@@ -1,6 +1,83 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Jpg.Panel" android:orientation="vertical"><TextView  style="@style/Jpg.Title" android:text="02  Compressão" /><TextView  style="@style/Jpg.Muted" android:text="Escolha o equilíbrio entre tamanho e qualidade." /><RadioGroup android:id="@+id/presetGroup" android:layout_width="match_parent" android:layout_height="wrap_content">
-<RadioButton android:id="@+id/preset92" style="@style/Jpg.Option" android:text="92 · Qualidade"/>
-<RadioButton android:id="@+id/preset85" style="@style/Jpg.Option" android:text="85 · Equilíbrio"/>
-<RadioButton android:id="@+id/preset75" style="@style/Jpg.Option" android:text="75 · Leve"/></RadioGroup><CheckBox android:id="@+id/chkExif" style="@style/Jpg.Option" android:checked="true" android:text="Manter EXIF"/>
-<CheckBox android:id="@+id/chkNoGps" style="@style/Jpg.Option" android:checked="false" android:text="Remover GPS"/>
-<CheckBox android:id="@+id/chkSubfolders" style="@style/Jpg.Option" android:checked="true" android:text="Incluir subpastas"/><TextView  style="@style/Jpg.Muted" android:text="Arquivos mantidos sem ganho são copiados com os metadados originais." /><TextView android:id="@+id/txtOptionsSummary" style="@style/Jpg.Muted" android:text="Equilíbrio (85)" /></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:layout_marginTop="12dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Jpg.Eyebrow"
+        android:text="COMPRESSÃO" />
+
+    <!-- Presets 92/85/75 em três cartões lado a lado -->
+    <RadioGroup
+        android:id="@+id/presetGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <RadioButton
+            android:id="@+id/preset92"
+            style="@style/Jpg.PresetCard"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="@string/preset_92" />
+
+        <RadioButton
+            android:id="@+id/preset85"
+            style="@style/Jpg.PresetCard"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:text="@string/preset_85" />
+
+        <RadioButton
+            android:id="@+id/preset75"
+            style="@style/Jpg.PresetCard"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="@string/preset_75" />
+    </RadioGroup>
+
+    <!-- Opções EXIF, GPS, Subpastas -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <CheckBox
+            android:id="@+id/chkExif"
+            style="@style/Jpg.Option"
+            android:checked="true"
+            android:text="Manter EXIF (câmera, data, lente)" />
+
+        <CheckBox
+            android:id="@+id/chkNoGps"
+            style="@style/Jpg.Option"
+            android:checked="false"
+            android:text="Remover GPS" />
+
+        <CheckBox
+            android:id="@+id/chkSubfolders"
+            style="@style/Jpg.Option"
+            android:checked="true"
+            android:text="Incluir subpastas" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtOptionsSummary"
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="4dp"
+        android:text="Equilíbrio (85) • EXIF mantido • Outra pasta" />
+
+    <TextView
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="2dp"
+        android:textSize="11sp"
+        android:text="Arquivos mantidos sem ganho são copiados com os metadados originais." />
+
+</LinearLayout>

@@ -1,1 +1,5 @@
-<resources><dimen name="page_padding">16dp</dimen></resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="page_padding">16dp</dimen>
+    <dimen name="preview_height">220dp</dimen>
+</resources>

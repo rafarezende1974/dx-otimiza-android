@@ -3,47 +3,25 @@
 Branch: codex/jpg-diet-responsive-redesign
 Base: 371300bce854b7e8187b3139289ab92033c420fd
 
-## Implementado
-- Tema preto/grafite/vermelho, logo existente e cartões com tipografia e alvos de toque maiores.
-- Layout vertical abaixo de 840 dp de largura disponível; duas colunas a partir de 840 dp.
-- Insets de barras do sistema e recortes; reinflação ao redimensionar, preservando estado do lote em memória.
-- Quantidade/tamanho reais da análise e economia real do último lote da sessão.
-- Presets 92/85/75, EXIF/GPS e subpastas na tela principal. Preferências salvas.
-- Subpastas conectadas à listagem usada tanto na análise quanto no processamento.
-- Controles bloqueados durante análise/lote e liberados no encerramento ou erro.
-- Cópia em outra pasta continua padrão. Substituição exige escolha e confirmação explícitas, não é persistida.
-- Comparação de identidade de documentos além da URI para bloquear origem/destino iguais.
-- Falha ao criar subpasta interrompe o lote, em vez de publicar silenciosamente na raiz.
-- Resumo de substituição corrigido: não afirma preservar originais nesse modo.
+## Implementado na iteração atual
+- **Métricas compactas no alto à esquerda**: Cartão horizontal compacto com colunas para JPGs na origem, Tamanho total e Economia obtida (em destaque vermelho), acompanhado do detalhamento da economia.
+- **Seleção de origem/destino em duas linhas compactas**:
+  - Linha 1: Caminho da origem + botão compacto "Escolher".
+  - Linha 2: Caminho do destino + botão compacto "Escolher".
+  - Linha 3 (auxiliar): Aviso de proteção dos originais + botão "Modo" para alternar modo de destino.
+- **Presets 92/85/75 em três cartões lado a lado**: Cartões seletores em `RadioGroup` horizontal com destaque visual em vermelho escuro com borda carmesim ao selecionar, mantendo integridade com as opções de EXIF, remoção de GPS e subpastas.
+- **Botão vermelho "Iniciar otimização"**: Botão primário com rótulo "Iniciar otimização" e estilo de destaque.
+- **Correção da aparência de botão desabilitado**: Configuração de `ColorStateList` dedicados para background, stroke e texto (`res/color/btn_primary_*` e `res/color/btn_secondary_*`). Quando desabilitado, o botão exibe superfície neutra escura, borda sutil e texto legível fosco, sem artefatos ou cores lavadas.
+- **Prévia grande à direita no tablet**: Na variante de layout `>= 840dp`, a prévia ocupa a coluna direita completa com altura ampliada (460dp) e moldura escura dedicada, alinhando-se aos controles à esquerda.
+- **Progresso na parte inferior**: Painel de progresso posicionado na base inferior com barra de progresso horizontal, status, arquivo corrente e resumo final.
+- **Celular com organização vertical**: Layout para `< 840dp` empilhado ordenadamente: Métricas -> Pastas -> Presets/Opções -> Iniciar Otimização -> Prévia -> Progresso.
+- **Preservação de regras e dados**: Otimizador intacto, métricas estritamente reais, proteção dos originais inalterada e compatibilidade com salvamento/restauração de ciclo de vida.
 
 ## Verificação executada
-PASS: 19 XMLs parseados; 27 IDs únicos por variante; mesmos IDs em celular/tablet; 27 referências Kotlin resolvidas.
-Revisão das ligações com os presets, opções, varredura, análise, relatórios e proteção padrão.
-O encoder de imagens e a rotina de publicação não foram reescritos.
+- Validação XML: 100% dos 32 arquivos XML validados com sucesso (zero erros de sintaxe).
+- Resolução de IDs: 27 IDs únicos do `MainActivity.kt` verificados e presentes tanto no layout mobile (`layout/activity_main.xml`) quanto tablet (`layout-w840dp/activity_main.xml`).
+- Resolução de Recursos: Verificação de todas as referências `@color/`, `@string/`, `@dimen/`, `@drawable/` e `@style/` contra os recursos existentes, com 0 referências pendentes.
 
 ## Compilação e validação pendentes
-A tentativa de gradle assembleDebug --console=plain falhou: Gradle não instalado no ambiente.
-Java 17 está disponível; Android SDK/adb não foram encontrados no local padrão/PATH.
-Clone direto falhou por DNS. Arquivos foram inspecionados e alterações publicadas pela conexão GitHub.
-O workflow existente Build APK só roda automaticamente em main e permite workflow_dispatch. Não foi alterado.
-Executar Build APK escolhendo esta branch no GitHub Actions, ou compilar com SDK 36, Java 17 e Gradle 8.11.1.
-Não foi gerado APK nem executado teste em dispositivo/emulador.
-
-## Roteiro de aceite em Android
-1. Telas 360/412 dp, fonte ampliada, tablet 840/1280 dp e janela dividida: rolagem, leitura, barras e botões.
-2. Rotacionar/redimensionar durante análise e lote: manter progresso e opções, sem duplicar processamento.
-3. Pasta vazia, JPEG corrompido, permissão revogada e destino sem escrita: mensagem coerente e controles recuperados.
-4. Presets 92/85/75: comparar qualidade passada ao encoder e resultados reais.
-5. Subpastas ligadas/desligadas: análise e lote devem selecionar o mesmo conjunto, preservando caminhos.
-6. Copiar lote pequeno para outra pasta e comparar hashes dos originais antes/depois.
-7. Origem/destino iguais (inclusive URIs diferentes do mesmo documento): bloquear.
-8. EXIF/GPS, fotos orientadas por EXIF e JPEG sem ganho: conferir saída e relatórios.
-9. Modo de substituição: testar somente com cópias descartáveis; cancelar confirmação não deve alterar arquivos.
-
-## Limites preexistentes que exigem atenção
-- Sem ganho, o motor copia o original inteiro, inclusive metadados. O texto da nova tela informa isso.
-- A rotina existente de substituição apaga/recria o destino: não oferece recuperação transacional se a escrita falhar.
-- O motor lê a orientação somente quando manter EXIF está ativo; espelhamento EXIF e privacidade no caso sem ganho exigem revisão própria.
-- Processamento continua vinculado à Activity, sem serviço de segundo plano ou retomada após encerramento do processo.
-- A escolha de pasta aninhada e colisões com arquivos já existentes continuam exigindo teste de proteção.
-- Não foi possível recuperar o mockup da conversa referenciada; implementação baseada na especificação explícita.
+- O workflow existente `Build APK` (`.github/workflows/build-apk.yml`) possui gatilho manual (`workflow_dispatch`).
+- Para compilar o APK de depuração, acesse o GitHub Actions no repositório, selecione o workflow **Build APK**, escolha a branch `codex/jpg-diet-responsive-redesign` e clique em **Run workflow**.

@@ -1,11 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<style name="Jpg.Panel" parent=""><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:layout_marginTop">16dp</item><item name="android:padding">20dp</item><item name="android:background">@drawable/card_dark</item></style>
-<style name="Jpg.Body" parent=""><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:layout_marginTop">8dp</item><item name="android:textColor">@color/jpg_text</item><item name="android:textSize">15sp</item></style>
-<style name="Jpg.Muted" parent="Jpg.Body"><item name="android:textColor">@color/jpg_muted</item><item name="android:textSize">13sp</item></style>
-<style name="Jpg.Eyebrow" parent="Jpg.Muted"><item name="android:textSize">11sp</item><item name="android:letterSpacing">0.08</item></style>
-<style name="Jpg.Title" parent="Jpg.Body"><item name="android:textSize">21sp</item><item name="android:textStyle">bold</item></style>
-<style name="Jpg.Hero" parent="Jpg.Title"><item name="android:textSize">40sp</item><item name="android:textColor">@color/jpg_red</item></style>
-<style name="Jpg.Button" parent="Widget.Material3.Button.OutlinedButton"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:minHeight">52dp</item><item name="android:layout_marginTop">8dp</item><item name="android:textColor">@color/jpg_text</item><item name="android:textAllCaps">false</item><item name="cornerRadius">14dp</item><item name="strokeColor">@color/jpg_border</item></style>
-<style name="Jpg.Primary" parent="Jpg.Button"><item name="backgroundTint">@color/jpg_red</item><item name="android:textColor">#FFFFFF</item><item name="android:textStyle">bold</item></style>
-<style name="Jpg.Option" parent=""><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:minHeight">48dp</item><item name="android:textColor">@color/jpg_text</item><item name="buttonTint">@color/jpg_red</item></style>
+    <style name="Jpg.Panel" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:background">@drawable/card_dark</item>
+    </style>
+
+    <style name="Jpg.Body" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/jpg_text</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Jpg.Muted" parent="Jpg.Body">
+        <item name="android:textColor">@color/jpg_muted</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Jpg.Eyebrow" parent="Jpg.Muted">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">@color/jpg_muted</item>
+    </style>
+
+    <style name="Jpg.Title" parent="Jpg.Body">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Jpg.Hero" parent="Jpg.Title">
+        <item name="android:textSize">36sp</item>
+        <item name="android:textColor">@color/jpg_red</item>
+    </style>
+
+    <style name="Jpg.StatValue" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textColor">@color/jpg_text</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Jpg.StatHero" parent="Jpg.StatValue">
+        <item name="android:textColor">@color/jpg_red</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Jpg.Button" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="backgroundTint">@color/btn_secondary_bg</item>
+        <item name="android:textColor">@color/btn_secondary_text</item>
+        <item name="strokeColor">@color/btn_secondary_stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Jpg.CompactButton" parent="Jpg.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:minHeight">38dp</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+
+    <style name="Jpg.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">54dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="backgroundTint">@color/btn_primary_bg</item>
+        <item name="android:textColor">@color/btn_primary_text</item>
+        <item name="strokeColor">@color/btn_primary_stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Jpg.PresetCard" parent="">
+        <item name="android:button">@null</item>
+        <item name="android:background">@drawable/selector_preset_card</item>
+        <item name="android:textColor">@color/selector_preset_text</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:minHeight">62dp</item>
+    </style>
+
+    <style name="Jpg.Option" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:textColor">@color/jpg_text</item>
+        <item name="buttonTint">@color/jpg_red</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

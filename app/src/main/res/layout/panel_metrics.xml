@@ -1,3 +1,79 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Jpg.Panel" android:orientation="vertical"><TextView  style="@style/Jpg.Eyebrow" android:text="SEU ÚLTIMO LOTE" /><TextView android:id="@+id/txtSavedTotal" style="@style/Jpg.Hero" android:text="0 MB" /><TextView android:id="@+id/txtSavedDetail" style="@style/Jpg.Muted" android:text="A economia aparece após otimizar" /><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="20dp">
-<LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical"><TextView  style="@style/Jpg.Eyebrow" android:text="JPGs NA ORIGEM" /><TextView android:id="@+id/txtFileCount" style="@style/Jpg.Title" android:text="—" /></LinearLayout>
-<LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical"><TextView  style="@style/Jpg.Eyebrow" android:text="TAMANHO TOTAL" /><TextView android:id="@+id/txtInputSize" style="@style/Jpg.Title" android:text="—" /></LinearLayout></LinearLayout></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:layout_marginTop="0dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <!-- Stat 1: JPGs na origem -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Jpg.Eyebrow"
+                android:text="JPGs ORIGEM" />
+
+            <TextView
+                android:id="@+id/txtFileCount"
+                style="@style/Jpg.StatValue"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="—" />
+        </LinearLayout>
+
+        <!-- Stat 2: Tamanho total -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1.2"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Jpg.Eyebrow"
+                android:text="TAMANHO" />
+
+            <TextView
+                android:id="@+id/txtInputSize"
+                style="@style/Jpg.StatValue"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="—" />
+        </LinearLayout>
+
+        <!-- Stat 3: Economia último lote -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1.2"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Jpg.Eyebrow"
+                android:text="ECONOMIA" />
+
+            <TextView
+                android:id="@+id/txtSavedTotal"
+                style="@style/Jpg.StatHero"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="0 MB" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtSavedDetail"
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="6dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:text="A economia aparece após otimizar" />
+
+</LinearLayout>

@@ -1,10 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/mainScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:background="@color/jpg_background">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/page_padding">
-<ImageView android:layout_width="160dp" android:layout_height="56dp" android:layout_gravity="start" android:adjustViewBounds="true" android:scaleType="fitStart" android:contentDescription="JPG Diet" android:src="@drawable/logo_jpg_diet"/>
-<TextView  style="@style/Jpg.Title" android:text="Menos espaço. Mais possibilidades." />
-<TextView  style="@style/Jpg.Muted" android:text="Otimize seus JPEGs com controle." />
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false">
-<LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="12dp"><include layout="@layout/panel_folders"/><include layout="@layout/panel_settings"/></LinearLayout>
-<LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp"><include layout="@layout/panel_metrics"/><include layout="@layout/panel_progress"/><include layout="@layout/panel_preview"/></LinearLayout></LinearLayout>
-</LinearLayout></ScrollView>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/jpg_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/page_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="160dp"
+                android:layout_height="52dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitStart"
+                android:contentDescription="JPG Diet"
+                android:src="@drawable/logo_jpg_diet" />
+
+            <TextView
+                style="@style/Jpg.Muted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textSize="14sp"
+                android:text="Menos espaço. Mais possibilidades. Otimize seus JPEGs com controle." />
+        </LinearLayout>
+
+        <!-- Grade 2 colunas: Controles à esquerda, Prévia grande à direita -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <!-- Coluna Esquerda: Métricas compactas no alto, Pastas, Presets, Ações -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="12dp">
+
+                <include layout="@layout/panel_metrics" />
+                <include layout="@layout/panel_folders" />
+                <include layout="@layout/panel_settings" />
+                <include layout="@layout/panel_actions" />
+            </LinearLayout>
+
+            <!-- Coluna Direita: Prévia grande à direita no tablet -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1.1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <include layout="@layout/panel_preview" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Progresso na parte inferior -->
+        <include layout="@layout/panel_progress" />
+
+    </LinearLayout>
+</ScrollView>

@@ -1,1 +1,47 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Jpg.Panel" android:orientation="vertical"><TextView  style="@style/Jpg.Title" android:text="03  Processamento" /><TextView android:id="@+id/txtStatus" style="@style/Jpg.Body" android:text="Escolha a origem para começar." /><ProgressBar android:id="@+id/progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="12dp" android:layout_marginTop="16dp" android:max="100" android:progressTint="@color/jpg_red" android:progressBackgroundTint="@color/jpg_border"/><TextView android:id="@+id/txtCurrent" style="@style/Jpg.Muted" android:text="" android:accessibilityLiveRegion="polite"/><com.google.android.material.button.MaterialButton android:id="@+id/btnAnalyze" style="@style/Jpg.Button" android:text="Analisar pasta"/><com.google.android.material.button.MaterialButton android:id="@+id/btnOptimize" style="@style/Jpg.Primary" android:text="Otimizar lote"/><TextView android:id="@+id/txtSummary" style="@style/Jpg.Body" android:text="" /><TextView  style="@style/Jpg.Muted" android:text="Mantenha o app aberto durante o lote. Confira o resultado antes de entregar." /></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:layout_marginTop="16dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Jpg.Eyebrow"
+        android:text="PROGRESSO" />
+
+    <TextView
+        android:id="@+id/txtStatus"
+        style="@style/Jpg.Body"
+        android:layout_marginTop="4dp"
+        android:text="Escolha a origem para começar." />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="10dp"
+        android:max="100"
+        android:progressTint="@color/jpg_red"
+        android:progressBackgroundTint="@color/jpg_border" />
+
+    <TextView
+        android:id="@+id/txtCurrent"
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="6dp"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:text=""
+        android:accessibilityLiveRegion="polite" />
+
+    <TextView
+        android:id="@+id/txtSummary"
+        style="@style/Jpg.Body"
+        android:layout_marginTop="6dp"
+        android:text="" />
+
+    <TextView
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="4dp"
+        android:textSize="11sp"
+        android:text="Mantenha o app aberto durante o lote. Confira o resultado antes de entregar." />
+</LinearLayout>

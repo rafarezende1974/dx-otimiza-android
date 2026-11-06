@@ -1,1 +1,86 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" style="@style/Jpg.Panel" android:orientation="vertical"><TextView  style="@style/Jpg.Title" android:text="01  Pastas" /><TextView android:id="@+id/txtSource" style="@style/Jpg.Body" android:text="Origem: nenhuma pasta escolhida" /><com.google.android.material.button.MaterialButton android:id="@+id/btnSource" style="@style/Jpg.Button" android:text="Escolher origem"/><TextView android:id="@+id/txtDest" style="@style/Jpg.Body" android:text="Destino: nenhuma pasta escolhida" /><com.google.android.material.button.MaterialButton android:id="@+id/btnDest" style="@style/Jpg.Button" android:text="Escolher destino"/><TextView android:id="@+id/txtProtection" style="@style/Jpg.Muted" android:text="Os originais serão preservados em outra pasta." /><com.google.android.material.button.MaterialButton android:id="@+id/btnOptions" style="@style/Jpg.Button" android:text="Modo de destino"/></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:layout_marginTop="12dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Jpg.Eyebrow"
+        android:text="PASTAS" />
+
+    <!-- Linha 1: Origem -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:id="@+id/txtSource"
+            style="@style/Jpg.Body"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:text="Origem: nenhuma pasta escolhida" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSource"
+            style="@style/Jpg.CompactButton"
+            android:text="Escolher" />
+    </LinearLayout>
+
+    <!-- Linha 2: Destino -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:id="@+id/txtDest"
+            style="@style/Jpg.Body"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:text="Destino: nenhuma pasta escolhida" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDest"
+            style="@style/Jpg.CompactButton"
+            android:text="Escolher" />
+    </LinearLayout>
+
+    <!-- Proteção dos originais / Modo de destino -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp">
+
+        <TextView
+            android:id="@+id/txtProtection"
+            style="@style/Jpg.Muted"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="Os originais serão preservados em outra pasta." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOptions"
+            style="@style/Jpg.CompactButton"
+            android:text="Modo" />
+    </LinearLayout>
+
+</LinearLayout>
