@@ -61,7 +61,7 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Coluna Esquerda: Métricas, Pastas, Presets, Ações, Progresso -->
+            <!-- Coluna Esquerda: Métricas, Pastas, Presets, Ações -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -80,12 +80,9 @@
 
                 <!-- 4. Botão vermelho "Iniciar otimização" e "Analisar pasta" -->
                 <include layout="@layout/panel_actions" />
-
-                <!-- 5. Progresso com indicador percentual -->
-                <include layout="@layout/panel_progress" />
             </LinearLayout>
 
-            <!-- Coluna Direita: Prévia grande à direita no tablet -->
+            <!-- Coluna Direita: Prévia grande à direita no tablet nivelada com a esquerda -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1.05"
@@ -96,6 +93,9 @@
                 <include layout="@layout/panel_preview" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- 5. Progresso de ponta a ponta na base ("Dock") -->
+        <include layout="@layout/panel_progress" />
 
     </LinearLayout>
 </ScrollView>

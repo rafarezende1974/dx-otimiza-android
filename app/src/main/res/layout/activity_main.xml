@@ -57,8 +57,8 @@
         <include layout="@layout/panel_folders" />
         <include layout="@layout/panel_settings" />
         <include layout="@layout/panel_actions" />
-        <include layout="@layout/panel_progress" />
         <include layout="@layout/panel_preview" />
+        <include layout="@layout/panel_progress" />
 
     </LinearLayout>
 </ScrollView>

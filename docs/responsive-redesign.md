@@ -4,21 +4,19 @@ Branch: codex/jpg-diet-responsive-redesign
 Base: 371300bce854b7e8187b3139289ab92033c420fd
 
 ## Implementado na iteração atual
-- **Equilíbrio e alinhamento perfeito das duas colunas (Tablet)**:
-  - Eliminação do espaço residual na coluna esquerda através da elevação dos cartões de preset (altura aumentada para 88dp), seletor de modo em linha e indicador percentual de progresso.
-  - Ajuste da altura da prévia da foto (410dp) e espaçamento superior ampliado abaixo do logotipo (16dp), evitando que as janelas fiquem coladas no cabeçalho. As duas colunas terminam rigorosamente na mesma altura, sem rolagem vertical.
-- **Seletor de Modo integrado entre Origem e Destino**:
-  - Dois botões estilizados lado a lado entre a linha de Origem e a linha de Destino: `Outra pasta (cópia)` e `Substituir originais`.
-  - Ao selecionar `Substituir originais`, a linha de Destino é esmaecida (35% de opacidade) e desativada, com o texto indicativo "Destino: mesma pasta dos originais", mantendo o diálogo de confirmação de segurança antes da otimização.
-  - Ao selecionar `Outra pasta (cópia)`, a linha de Destino volta à opacidade total e o botão "Escolher" é reativado.
-- **Presets de Compressão com maior destaque visual**:
-  - Espaçamento de 12dp adicionado entre o título "COMPRESSÃO" e os botões de preset, eliminando a sensação de elementos grudados.
-  - Cartões ampliados (88dp de altura, formato quase quadrado) com números destacados em tamanho grande (1.75x, ~24sp bold) e legendas proporcionais abaixo ("Qualidade", "Equilíbrio", "Leve").
-- **Indicador percentual em Progresso**:
-  - Inclusão do indicador percentual em tempo real (`txtPercent`), exibindo `0%` -> `100%` com destaque em vermelho carmesim ao lado da barra de progresso horizontal e do status.
-- **Menu superior direito e celular**:
-  - Menu `Opções ▾` preservado no canto superior direito para controle de EXIF, GPS e subpastas.
-  - Celular mantém fluxo vertical limpo com as mesmas melhorias visuais.
+- **Barra de progresso de ponta a ponta na base ("Dock")**:
+  - O painel de progresso (`panel_progress.xml`) agora ocupa a largura total inferior (100%), formando uma base sólida de controle.
+  - Linha superior com rótulo `PROGRESSO` à esquerda, nome do arquivo atual centralizado (`txtCurrent`) e percentual em destaque à direita (`txtPercent` de 0% a 100% em vermelho carmesim).
+  - Barra de progresso horizontal contínua e longa, proporcionando leitura visual nítida à distância no tablet.
+  - Linha inferior com status e relatório da economia obtida.
+- **Duas colunas superiores perfeitamente niveladas**:
+  - **Coluna Esquerda**: Métricas compactas $\to$ Pastas (com seletor Outra pasta / Substituir) $\to$ Presets (cartões de 88dp com números grandes) $\to$ Botões "Iniciar otimização" e "Analisar pasta". Altura total de ~405dp.
+  - **Coluna Direita**: Prévia da foto calibrada para 340dp de imagem (~404dp de painel), alinhando-se exatamente na mesma linha inferior dos botões da esquerda.
+- **Espaçamento e ausência de rolagem**:
+  - Margem de 16dp abaixo do logotipo evita que os painéis fiquem grudados no cabeçalho.
+  - Altura total da tela ~555dp, garantindo exibição completa em qualquer tablet em orientação horizontal (600dp a 800dp) sem acionar barra de rolagem.
+- **Celular mantido consistente**:
+  - O celular vertical preserva o fluxo: Cabeçalho $\to$ Métricas $\to$ Pastas $\to$ Presets $\to$ Ações $\to$ Prévia $\to$ Progresso na base.
 
 ## Verificação executada
 - Validação XML: 100% dos 32 arquivos XML validados (0 erros).
