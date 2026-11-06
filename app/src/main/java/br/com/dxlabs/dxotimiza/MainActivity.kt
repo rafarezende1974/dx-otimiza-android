@@ -6,22 +6,22 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RadioGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ensureActive
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,8 +99,6 @@ class MainActivity : AppCompatActivity() {
         updateOptionsSummary()
         btnOptimize.isEnabled = false
         if (sourceUri != null) analyze()
-
-
     }
 
     private fun bindScreen() {
@@ -132,22 +130,27 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnDest).setOnClickListener { pickDest.launch(null) }
         btnAnalyze.setOnClickListener { analyze() }
         btnOptimize.setOnClickListener { optimize() }
-        btnOptions.setOnClickListener { showOptionsDialog() }
+        btnOptions.setOnClickListener { showOptionsMenu() }
+        findViewById<Button>(R.id.btnDestMode)?.setOnClickListener { showDestinationModeDialog() }
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
         // The manifest handles resizing in place: reinflate the width-qualified layout
         // while preserving the active batch, its preview and actual displayed metrics.
-        val textIds = listOf(R.id.txtSavedTotal, R.id.txtSavedDetail, R.id.txtFileCount,
-            R.id.txtInputSize, R.id.txtStatus, R.id.txtCurrent, R.id.txtSummary, R.id.txtPreviewHint)
-        val texts = textIds.associateWith { findViewById<TextView>(it).text }
+        val textIds = listOf(
+            R.id.txtSavedTotal, R.id.txtSavedDetail, R.id.txtFileCount,
+            R.id.txtInputSize, R.id.txtStatus, R.id.txtCurrent, R.id.txtSummary, R.id.txtPreviewHint
+        )
+        val texts = textIds.mapNotNull { id ->
+            findViewById<TextView>(id)?.let { id to it.text }
+        }.toMap()
         val preview = imgPreview.drawable
         val percent = progress.progress
         bindScreen()
         bindInlineOptions()
         updateOptionsSummary()
-        texts.forEach { (id, text) -> findViewById<TextView>(id).text = text }
+        texts.forEach { (id, text) -> findViewById<TextView>(id)?.text = text }
         imgPreview.setImageDrawable(preview)
         progress.isIndeterminate = analyzing
         progress.progress = percent
@@ -159,9 +162,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             "sem EXIF"
         }
+        val sub = if (includeSubfolders) "com subpastas" else "sem subpastas"
         val dest = if (overwriteState) "Substituir originais" else "Outra pasta"
-        txtOptionsSummary.text = "${selectedMode.label} • $exif • $dest"
-        findViewById<TextView>(R.id.txtProtection).text = if (overwriteState)
+        txtOptionsSummary.text = "${selectedMode.label} • $exif • $sub • $dest"
+        findViewById<TextView>(R.id.txtProtection)?.text = if (overwriteState)
             "Atenção: os originais serão substituídos após confirmação."
         else "Os originais serão preservados em outra pasta."
         getSharedPreferences("dxotimiza", MODE_PRIVATE).edit()
@@ -186,9 +190,6 @@ class MainActivity : AppCompatActivity() {
             OptimizeEngine.Mode.LEVE -> R.id.preset75
             else -> R.id.preset85
         })
-        findViewById<CheckBox>(R.id.chkExif).isChecked = keepExifState
-        findViewById<CheckBox>(R.id.chkNoGps).isChecked = removeGpsState
-        findViewById<CheckBox>(R.id.chkSubfolders).isChecked = includeSubfolders
         presets.setOnCheckedChangeListener { _, checked ->
             selectedMode = when (checked) {
                 R.id.preset92 -> OptimizeEngine.Mode.QUALIDADE
@@ -197,33 +198,69 @@ class MainActivity : AppCompatActivity() {
             }
             updateOptionsSummary()
         }
-        findViewById<CheckBox>(R.id.chkExif).setOnCheckedChangeListener { _, checked ->
-            keepExifState = checked
-            updateOptionsSummary()
-        }
-        findViewById<CheckBox>(R.id.chkNoGps).setOnCheckedChangeListener { _, checked ->
-            removeGpsState = checked
-            updateOptionsSummary()
-        }
-        findViewById<CheckBox>(R.id.chkSubfolders).setOnCheckedChangeListener { _, checked ->
-            includeSubfolders = checked
-            updateOptionsSummary()
-            if (sourceUri != null) analyze()
-        }
     }
 
     private fun updateControls() {
         val available = !running && !analyzing
-        listOf(R.id.btnSource, R.id.btnAnalyze, R.id.btnOptions,
-            R.id.preset92, R.id.preset85, R.id.preset75, R.id.chkExif,
-            R.id.chkSubfolders).forEach { findViewById<android.view.View>(it).isEnabled = available }
-        findViewById<CheckBox>(R.id.chkNoGps).isEnabled = available && keepExifState
+        listOf(
+            R.id.btnSource, R.id.btnAnalyze, R.id.btnOptions,
+            R.id.preset92, R.id.preset85, R.id.preset75
+        ).forEach { id ->
+            findViewById<android.view.View>(id)?.isEnabled = available
+        }
+        findViewById<android.view.View>(R.id.btnDestMode)?.isEnabled = available
         btnDest.isEnabled = available && !overwriteState
         btnOptimize.isEnabled = available && listed.isNotEmpty() &&
             (overwriteState || destUri != null)
     }
 
-    private fun showOptionsDialog() {
+    private fun showOptionsMenu() {
+        if (running || analyzing) return
+        val popup = PopupMenu(this, btnOptions)
+        popup.menu.add(0, 1, 0, "Manter EXIF").apply {
+            isCheckable = true
+            isChecked = keepExifState
+        }
+        popup.menu.add(0, 2, 1, "Remover GPS").apply {
+            isCheckable = true
+            isChecked = removeGpsState
+            isEnabled = keepExifState
+        }
+        popup.menu.add(0, 3, 2, "Incluir subpastas").apply {
+            isCheckable = true
+            isChecked = includeSubfolders
+        }
+        popup.menu.add(0, 4, 3, "Modo de destino: " + if (overwriteState) "Substituir" else "Outra pasta")
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> {
+                    keepExifState = !keepExifState
+                    updateOptionsSummary()
+                    true
+                }
+                2 -> {
+                    removeGpsState = !removeGpsState
+                    updateOptionsSummary()
+                    true
+                }
+                3 -> {
+                    includeSubfolders = !includeSubfolders
+                    updateOptionsSummary()
+                    if (sourceUri != null) analyze()
+                    true
+                }
+                4 -> {
+                    showDestinationModeDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun showDestinationModeDialog() {
         if (running || analyzing) return
         AlertDialog.Builder(this)
             .setTitle("Modo de destino")

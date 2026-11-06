@@ -4,22 +4,27 @@ Branch: codex/jpg-diet-responsive-redesign
 Base: 371300bce854b7e8187b3139289ab92033c420fd
 
 ## Implementado na iteração atual
-- **Métricas compactas no alto à esquerda**: Cartão horizontal compacto com colunas para JPGs na origem, Tamanho total e Economia obtida (em destaque vermelho), acompanhado do detalhamento da economia.
-- **Seleção de origem/destino em duas linhas compactas**:
-  - Linha 1: Caminho da origem + botão compacto "Escolher".
-  - Linha 2: Caminho do destino + botão compacto "Escolher".
-  - Linha 3 (auxiliar): Aviso de proteção dos originais + botão "Modo" para alternar modo de destino.
-- **Presets 92/85/75 em três cartões lado a lado**: Cartões seletores em `RadioGroup` horizontal com destaque visual em vermelho escuro com borda carmesim ao selecionar, mantendo integridade com as opções de EXIF, remoção de GPS e subpastas.
-- **Botão vermelho "Iniciar otimização"**: Botão primário com rótulo "Iniciar otimização" e estilo de destaque.
-- **Correção da aparência de botão desabilitado**: Configuração de `ColorStateList` dedicados para background, stroke e texto (`res/color/btn_primary_*` e `res/color/btn_secondary_*`). Quando desabilitado, o botão exibe superfície neutra escura, borda sutil e texto legível fosco, sem artefatos ou cores lavadas.
-- **Prévia grande à direita no tablet**: Na variante de layout `>= 840dp`, a prévia ocupa a coluna direita completa com altura ampliada (460dp) e moldura escura dedicada, alinhando-se aos controles à esquerda.
-- **Progresso na parte inferior**: Painel de progresso posicionado na base inferior com barra de progresso horizontal, status, arquivo corrente e resumo final.
-- **Celular com organização vertical**: Layout para `< 840dp` empilhado ordenadamente: Métricas -> Pastas -> Presets/Opções -> Iniciar Otimização -> Prévia -> Progresso.
-- **Preservação de regras e dados**: Otimizador intacto, métricas estritamente reais, proteção dos originais inalterada e compatibilidade com salvamento/restauração de ciclo de vida.
+- **Modo horizontal em tela única sem barra de rolagem**:
+  - Ajuste de dimensões verticais e distribuição proporcional no layout tablet (`layout-w840dp/activity_main.xml`), garantindo que todos os elementos caibam em 100% da viewport sem necessidade de rolagem.
+- **Menu na parte superior direita (EXIF, GPS, Subpastas)**:
+  - Botão de opções no canto superior direito do cabeçalho (`btnOptions`).
+  - `PopupMenu` com itens comutáveis nativos (checkmarks):
+    - **Manter EXIF** (câmera, data, lente)
+    - **Remover GPS** (localização geográfica)
+    - **Incluir subpastas** (varredura recursiva de diretórios)
+    - **Modo de destino** (outra pasta vs. substituição)
+  - Persistência contínua em `SharedPreferences` e reflexo imediato no sumário inline (`txtOptionsSummary`).
+- **Ações e Progresso elevados**:
+  - Com a saída das caixas de seleção da coluna esquerda, o botão vermelho "Iniciar otimização" e "Analisar pasta" subiram, ficando posicionados logo abaixo dos 3 cartões de preset (92/85/75).
+  - O painel de progresso (`panel_progress.xml`) também subiu para a coluna esquerda, diretamente abaixo dos botões de ação, exibindo barra de progresso horizontal, status, arquivo atual e resumo sem rolagem.
+- **Prévia sincronizada à direita**:
+  - A coluna da direita preenche a altura disponível dinamicamente (`match_parent`), nivelando a prévia com a coluna de controles e status.
+- **Celular com organização vertical**:
+  - Mantido fluxo linear coerente para telas `< 840dp`, com o menu de opções no cabeçalho superior e prévia na sequência.
 
 ## Verificação executada
 - Validação XML: 100% dos 32 arquivos XML validados com sucesso (zero erros de sintaxe).
-- Resolução de IDs: 27 IDs únicos do `MainActivity.kt` verificados e presentes tanto no layout mobile (`layout/activity_main.xml`) quanto tablet (`layout-w840dp/activity_main.xml`).
+- Resolução de IDs: 25 IDs únicos do `MainActivity.kt` verificados e presentes tanto no layout mobile (`layout/activity_main.xml`) quanto tablet (`layout-w840dp/activity_main.xml`).
 - Resolução de Recursos: Verificação de todas as referências `@color/`, `@string/`, `@dimen/`, `@drawable/` e `@style/` contra os recursos existentes, com 0 referências pendentes.
 
 ## Compilação e validação pendentes

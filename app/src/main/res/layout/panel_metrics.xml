@@ -71,7 +71,8 @@
     <TextView
         android:id="@+id/txtSavedDetail"
         style="@style/Jpg.Muted"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
+        android:textSize="11sp"
         android:singleLine="true"
         android:ellipsize="end"
         android:text="A economia aparece após otimizar" />

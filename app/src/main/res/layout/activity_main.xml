@@ -13,30 +13,52 @@
         android:orientation="vertical"
         android:padding="@dimen/page_padding">
 
-        <ImageView
-            android:layout_width="160dp"
-            android:layout_height="52dp"
-            android:layout_gravity="start"
-            android:adjustViewBounds="true"
-            android:scaleType="fitStart"
-            android:contentDescription="JPG Diet"
-            android:src="@drawable/logo_jpg_diet" />
+        <!-- Header: Logo + Menu Opções no canto direito -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="140dp"
+                android:layout_height="44dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitStart"
+                android:contentDescription="JPG Diet"
+                android:src="@drawable/logo_jpg_diet" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Menu na parte superior direita -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOptions"
+                style="@style/Jpg.CompactButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Opções ▾"
+                android:contentDescription="Menu de opções" />
+        </LinearLayout>
 
         <TextView
             style="@style/Jpg.Title"
-            android:layout_marginTop="8dp"
             android:text="Menos espaço. Mais possibilidades." />
 
         <TextView
             style="@style/Jpg.Muted"
+            android:layout_marginTop="2dp"
             android:text="Otimize seus JPEGs com controle." />
 
         <include layout="@layout/panel_metrics" />
         <include layout="@layout/panel_folders" />
         <include layout="@layout/panel_settings" />
         <include layout="@layout/panel_actions" />
-        <include layout="@layout/panel_preview" />
         <include layout="@layout/panel_progress" />
+        <include layout="@layout/panel_preview" />
 
     </LinearLayout>
 </ScrollView>

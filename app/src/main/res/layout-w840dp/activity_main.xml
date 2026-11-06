@@ -4,25 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:scrollbars="none"
     android:clipToPadding="false"
     android:background="@color/jpg_background">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="@dimen/page_padding">
+        android:paddingStart="@dimen/page_padding"
+        android:paddingEnd="@dimen/page_padding"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
+        <!-- Header: Logo no canto esquerdo, Menu Opções no canto direito -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <ImageView
-                android:layout_width="160dp"
-                android:layout_height="52dp"
+                android:layout_width="140dp"
+                android:layout_height="44dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitStart"
                 android:contentDescription="JPG Diet"
@@ -30,48 +35,68 @@
 
             <TextView
                 style="@style/Jpg.Muted"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="Menos espaço. Mais possibilidades. Otimize seus JPEGs com controle." />
+
+            <!-- Menu na parte superior direita -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOptions"
+                style="@style/Jpg.CompactButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textSize="14sp"
-                android:text="Menos espaço. Mais possibilidades. Otimize seus JPEGs com controle." />
+                android:text="Opções ▾"
+                android:contentDescription="Menu de opções" />
         </LinearLayout>
 
         <!-- Grade 2 colunas: Controles à esquerda, Prévia grande à direita -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Coluna Esquerda: Métricas compactas no alto, Pastas, Presets, Ações -->
+            <!-- Coluna Esquerda: Métricas, Pastas, Presets, Ações, Progresso -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_marginEnd="12dp">
+                android:layout_marginEnd="10dp">
 
+                <!-- 1. Métricas compactas no alto à esquerda -->
                 <include layout="@layout/panel_metrics" />
+
+                <!-- 2. Seleção de origem/destino em duas linhas compactas -->
                 <include layout="@layout/panel_folders" />
+
+                <!-- 3. Presets 92/85/75 em três cartões lado a lado -->
                 <include layout="@layout/panel_settings" />
+
+                <!-- 4. Botão vermelho "Iniciar otimização" e "Analisar pasta" -->
                 <include layout="@layout/panel_actions" />
+
+                <!-- 5. Progresso na parte inferior da coluna esquerda (subiu!) -->
+                <include layout="@layout/panel_progress" />
             </LinearLayout>
 
             <!-- Coluna Direita: Prévia grande à direita no tablet -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1.1"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="10dp">
 
                 <include layout="@layout/panel_preview" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- Progresso na parte inferior -->
-        <include layout="@layout/panel_progress" />
 
     </LinearLayout>
 </ScrollView>

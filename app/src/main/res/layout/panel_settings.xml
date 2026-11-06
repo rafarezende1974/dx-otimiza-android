@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Jpg.Panel"
-    android:layout_marginTop="12dp"
+    android:layout_marginTop="8dp"
     android:orientation="vertical">
 
-    <TextView
-        style="@style/Jpg.Eyebrow"
-        android:text="COMPRESSÃO" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            style="@style/Jpg.Eyebrow"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="COMPRESSÃO" />
+
+        <TextView
+            android:id="@+id/txtOptionsSummary"
+            style="@style/Jpg.Muted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:text="Equilíbrio (85)" />
+    </LinearLayout>
 
     <!-- Presets 92/85/75 em três cartões lado a lado -->
     <RadioGroup
@@ -14,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="6dp">
 
         <RadioButton
             android:id="@+id/preset92"
@@ -41,43 +58,5 @@
             android:layout_marginStart="4dp"
             android:text="@string/preset_75" />
     </RadioGroup>
-
-    <!-- Opções EXIF, GPS, Subpastas -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
-
-        <CheckBox
-            android:id="@+id/chkExif"
-            style="@style/Jpg.Option"
-            android:checked="true"
-            android:text="Manter EXIF (câmera, data, lente)" />
-
-        <CheckBox
-            android:id="@+id/chkNoGps"
-            style="@style/Jpg.Option"
-            android:checked="false"
-            android:text="Remover GPS" />
-
-        <CheckBox
-            android:id="@+id/chkSubfolders"
-            style="@style/Jpg.Option"
-            android:checked="true"
-            android:text="Incluir subpastas" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/txtOptionsSummary"
-        style="@style/Jpg.Muted"
-        android:layout_marginTop="4dp"
-        android:text="Equilíbrio (85) • EXIF mantido • Outra pasta" />
-
-    <TextView
-        style="@style/Jpg.Muted"
-        android:layout_marginTop="2dp"
-        android:textSize="11sp"
-        android:text="Arquivos mantidos sem ganho são copiados com os metadados originais." />
 
 </LinearLayout>
