@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Jpg.Panel"
-    android:layout_height="match_parent"
     android:layout_marginTop="0dp"
     android:orientation="vertical">
 
@@ -12,9 +11,7 @@
     <ImageView
         android:id="@+id/imgPreview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:minHeight="@dimen/preview_height"
+        android:layout_height="@dimen/preview_height"
         android:layout_marginTop="6dp"
         android:background="@drawable/card_preview_bg"
         android:contentDescription="Primeira foto da pasta de origem"

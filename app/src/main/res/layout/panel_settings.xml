@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Jpg.Panel"
-    android:layout_marginTop="8dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -25,20 +24,20 @@
             android:text="Equilíbrio (85)" />
     </LinearLayout>
 
-    <!-- Presets 92/85/75 em três cartões lado a lado -->
+    <!-- Presets 92/85/75 em três cartões altos quase quadrados -->
     <RadioGroup
         android:id="@+id/presetGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="6dp">
+        android:layout_marginTop="12dp">
 
         <RadioButton
             android:id="@+id/preset92"
             style="@style/Jpg.PresetCard"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginEnd="4dp"
+            android:layout_marginEnd="5dp"
             android:text="@string/preset_92" />
 
         <RadioButton
@@ -46,8 +45,8 @@
             style="@style/Jpg.PresetCard"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:text="@string/preset_85" />
 
         <RadioButton
@@ -55,7 +54,7 @@
             style="@style/Jpg.PresetCard"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="5dp"
             android:text="@string/preset_75" />
     </RadioGroup>
 

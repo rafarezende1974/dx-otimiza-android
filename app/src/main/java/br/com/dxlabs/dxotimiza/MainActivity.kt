@@ -2,12 +2,18 @@ package br.com.dxlabs.dxotimiza
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -43,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtSavedDetail: TextView
     private lateinit var txtPreviewHint: TextView
     private lateinit var txtOptionsSummary: TextView
+    private lateinit var txtPercent: TextView
     private lateinit var imgPreview: ImageView
     private lateinit var progress: ProgressBar
     private lateinit var btnOptimize: Button
@@ -119,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         txtSavedDetail = findViewById(R.id.txtSavedDetail)
         txtPreviewHint = findViewById(R.id.txtPreviewHint)
         txtOptionsSummary = findViewById(R.id.txtOptionsSummary)
+        txtPercent = findViewById(R.id.txtPercent)
         imgPreview = findViewById(R.id.imgPreview)
         progress = findViewById(R.id.progress)
         btnOptimize = findViewById(R.id.btnOptimize)
@@ -131,7 +139,16 @@ class MainActivity : AppCompatActivity() {
         btnAnalyze.setOnClickListener { analyze() }
         btnOptimize.setOnClickListener { optimize() }
         btnOptions.setOnClickListener { showOptionsMenu() }
-        findViewById<Button>(R.id.btnDestMode)?.setOnClickListener { showDestinationModeDialog() }
+
+        val modeGroup = findViewById<RadioGroup>(R.id.modeGroup)
+        modeGroup?.check(if (overwriteState) R.id.modeOverwrite else R.id.modeOther)
+        modeGroup?.setOnCheckedChangeListener { _, checkedId ->
+            val newOverwrite = checkedId == R.id.modeOverwrite
+            if (newOverwrite != overwriteState) {
+                overwriteState = newOverwrite
+                updateOptionsSummary()
+            }
+        }
     }
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
@@ -140,7 +157,8 @@ class MainActivity : AppCompatActivity() {
         // while preserving the active batch, its preview and actual displayed metrics.
         val textIds = listOf(
             R.id.txtSavedTotal, R.id.txtSavedDetail, R.id.txtFileCount,
-            R.id.txtInputSize, R.id.txtStatus, R.id.txtCurrent, R.id.txtSummary, R.id.txtPreviewHint
+            R.id.txtInputSize, R.id.txtStatus, R.id.txtCurrent, R.id.txtSummary,
+            R.id.txtPreviewHint, R.id.txtPercent
         )
         val texts = textIds.mapNotNull { id ->
             findViewById<TextView>(id)?.let { id to it.text }
@@ -156,6 +174,19 @@ class MainActivity : AppCompatActivity() {
         progress.progress = percent
     }
 
+    private fun formatPresetText(number: String, label: String): CharSequence {
+        val ssb = SpannableStringBuilder()
+        val startNum = ssb.length
+        ssb.append(number)
+        ssb.setSpan(RelativeSizeSpan(1.75f), startNum, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ssb.setSpan(StyleSpan(Typeface.BOLD), startNum, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ssb.append("\n")
+        val startLabel = ssb.length
+        ssb.append(label)
+        ssb.setSpan(RelativeSizeSpan(0.85f), startLabel, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return ssb
+    }
+
     private fun updateOptionsSummary() {
         val exif = if (keepExifState) {
             if (removeGpsState) "EXIF mantido, sem GPS" else "EXIF mantido"
@@ -165,21 +196,31 @@ class MainActivity : AppCompatActivity() {
         val sub = if (includeSubfolders) "com subpastas" else "sem subpastas"
         val dest = if (overwriteState) "Substituir originais" else "Outra pasta"
         txtOptionsSummary.text = "${selectedMode.label} • $exif • $sub • $dest"
-        findViewById<TextView>(R.id.txtProtection)?.text = if (overwriteState)
-            "Atenção: os originais serão substituídos após confirmação."
-        else "Os originais serão preservados em outra pasta."
+
+        val modeGroup = findViewById<RadioGroup>(R.id.modeGroup)
+        modeGroup?.check(if (overwriteState) R.id.modeOverwrite else R.id.modeOther)
+
+        val destRow = findViewById<android.view.View>(R.id.layoutDestRow)
+        if (overwriteState) {
+            destRow?.alpha = 0.35f
+            txtDest.text = "Destino: mesma pasta dos originais"
+            btnDest.isEnabled = false
+            findViewById<TextView>(R.id.txtProtection)?.text =
+                "Atenção: os originais serão substituídos após confirmação."
+        } else {
+            destRow?.alpha = 1.0f
+            btnDest.isEnabled = !running && !analyzing
+            updateLabels()
+            findViewById<TextView>(R.id.txtProtection)?.text =
+                "Os originais serão preservados em outra pasta."
+        }
+
         getSharedPreferences("dxotimiza", MODE_PRIVATE).edit()
             .putString("mode", selectedMode.name)
             .putBoolean("keep_exif", keepExifState)
             .putBoolean("remove_gps", removeGpsState)
             .putBoolean("subfolders", includeSubfolders).apply()
-        if (overwriteState) {
-            txtDest.text = "Destino: mesma pasta — substituir originais"
-            btnDest.isEnabled = false
-        } else {
-            btnDest.isEnabled = true
-            updateLabels()
-        }
+
         updateControls()
     }
 
@@ -190,6 +231,11 @@ class MainActivity : AppCompatActivity() {
             OptimizeEngine.Mode.LEVE -> R.id.preset75
             else -> R.id.preset85
         })
+
+        findViewById<RadioButton>(R.id.preset92)?.text = formatPresetText("92", "Qualidade")
+        findViewById<RadioButton>(R.id.preset85)?.text = formatPresetText("85", "Equilíbrio")
+        findViewById<RadioButton>(R.id.preset75)?.text = formatPresetText("75", "Leve")
+
         presets.setOnCheckedChangeListener { _, checked ->
             selectedMode = when (checked) {
                 R.id.preset92 -> OptimizeEngine.Mode.QUALIDADE
@@ -204,11 +250,11 @@ class MainActivity : AppCompatActivity() {
         val available = !running && !analyzing
         listOf(
             R.id.btnSource, R.id.btnAnalyze, R.id.btnOptions,
-            R.id.preset92, R.id.preset85, R.id.preset75
+            R.id.preset92, R.id.preset85, R.id.preset75,
+            R.id.modeOther, R.id.modeOverwrite
         ).forEach { id ->
             findViewById<android.view.View>(id)?.isEnabled = available
         }
-        findViewById<android.view.View>(R.id.btnDestMode)?.isEnabled = available
         btnDest.isEnabled = available && !overwriteState
         btnOptimize.isEnabled = available && listed.isNotEmpty() &&
             (overwriteState || destUri != null)
@@ -230,7 +276,7 @@ class MainActivity : AppCompatActivity() {
             isCheckable = true
             isChecked = includeSubfolders
         }
-        popup.menu.add(0, 4, 3, "Modo de destino: " + if (overwriteState) "Substituir" else "Outra pasta")
+        popup.menu.add(0, 4, 3, "Modo: " + if (overwriteState) "Substituir originais" else "Outra pasta (cópia)")
 
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -251,29 +297,14 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 4 -> {
-                    showDestinationModeDialog()
+                    overwriteState = !overwriteState
+                    updateOptionsSummary()
                     true
                 }
                 else -> false
             }
         }
         popup.show()
-    }
-
-    private fun showDestinationModeDialog() {
-        if (running || analyzing) return
-        AlertDialog.Builder(this)
-            .setTitle("Modo de destino")
-            .setSingleChoiceItems(
-                arrayOf("Outra pasta · preservar originais", "Substituir originais · irreversível"),
-                if (overwriteState) 1 else 0
-            ) { dialog, which ->
-                overwriteState = which == 1
-                updateOptionsSummary()
-                dialog.dismiss()
-            }
-            .setNegativeButton("Fechar", null)
-            .show()
     }
 
     private fun takePermission(uri: Uri) {
@@ -334,6 +365,7 @@ class MainActivity : AppCompatActivity() {
         listed = emptyList()
         updateControls()
         txtStatus.text = "Analisando pasta…"
+        txtPercent.text = "—"
         findViewById<TextView>(R.id.txtFileCount).text = "—"
         findViewById<TextView>(R.id.txtInputSize).text = "—"
         progress.isIndeterminate = true
@@ -372,6 +404,7 @@ class MainActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     txtStatus.text = "Análise: ${items.size} JPGs, " +
                         SafTree.formatBytes(total) + " no total."
+                    txtPercent.text = "0%"
                     listed = items
                     findViewById<TextView>(R.id.txtFileCount).text = items.size.toString()
                     findViewById<TextView>(R.id.txtInputSize).text = SafTree.formatBytes(total)
@@ -454,6 +487,7 @@ class MainActivity : AppCompatActivity() {
         running = true
         updateControls()
         progress.progress = 0
+        txtPercent.text = "0%"
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         txtStatus.text = "Otimizando em ${mode.label}… mantenha o app aberto."
 
@@ -478,8 +512,10 @@ class MainActivity : AppCompatActivity() {
                     results.add(result)
                     done++
                     val current = done
+                    val pct = if (items.isNotEmpty()) current * 100 / items.size else 100
                     withContext(Dispatchers.Main) {
-                        progress.progress = if (items.isNotEmpty()) current * 100 / items.size else 100
+                        progress.progress = pct
+                        txtPercent.text = "$pct%"
                         txtCurrent.text = "$current/${items.size}: ${file.name}"
                         txtStatus.text = "Otimizando… $current de ${items.size}"
                     }
@@ -519,6 +555,7 @@ class MainActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     progress.progress = 100
+                    txtPercent.text = "100%"
                     txtSavedTotal.text = SafTree.formatBytes(
                         (originalTotal - newTotal).coerceAtLeast(0)
                     )
