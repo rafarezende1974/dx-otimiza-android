@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Jpg.Eyebrow"
+        android:text="PASTAS" />
+
+    <!-- Linha 1: Origem -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/txtSource"
+            style="@style/Jpg.Body"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:textSize="13sp"
+            android:text="Origem: nenhuma pasta escolhida" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSource"
+            style="@style/Jpg.CompactButton"
+            android:text="Escolher" />
+    </LinearLayout>
+
+    <!-- Linha 2: Modo entre Origem e Destino (Botoes de opcao) -->
+    <RadioGroup
+        android:id="@+id/modeGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp">
+
+        <RadioButton
+            android:id="@+id/modeOther"
+            style="@style/Jpg.ModeTab"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:checked="true"
+            android:text="Outra pasta (cópia)" />
+
+        <RadioButton
+            android:id="@+id/modeOverwrite"
+            style="@style/Jpg.ModeTab"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:text="Substituir originais" />
+    </RadioGroup>
+
+    <!-- Linha 3: Destino (desativada quando substituir for escolhido) -->
+    <LinearLayout
+        android:id="@+id/layoutDestRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/txtDest"
+            style="@style/Jpg.Body"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="8dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:textSize="13sp"
+            android:text="Destino: nenhuma pasta escolhida" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDest"
+            style="@style/Jpg.CompactButton"
+            android:text="Escolher" />
+    </LinearLayout>
+
+    <!-- Linha 4: Aviso de protecao dos originais -->
+    <TextView
+        android:id="@+id/txtProtection"
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="6dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textSize="11sp"
+        android:text="Os originais serão preservados em outra pasta." />
+
+</LinearLayout>

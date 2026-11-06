@@ -2,22 +2,32 @@ package br.com.dxlabs.dxotimiza
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -27,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private var destUri: Uri? = null
     private var listed: List<Pair<DocumentFile, String>> = emptyList()
     private var running = false
+    private var analyzing = false
+    private var includeSubfolders = true
 
     private lateinit var txtSource: TextView
     private lateinit var txtDest: TextView
@@ -37,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var txtSavedDetail: TextView
     private lateinit var txtPreviewHint: TextView
     private lateinit var txtOptionsSummary: TextView
+    private lateinit var txtPercent: TextView
     private lateinit var imgPreview: ImageView
     private lateinit var progress: ProgressBar
     private lateinit var btnOptimize: Button
@@ -44,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnOptions: Button
     private lateinit var btnDest: Button
 
-    // v0.4: opções vivem no menu "Opções", não na tela principal.
+    // Inline controls map to the existing optimizer options.
     private var selectedMode: OptimizeEngine.Mode = OptimizeEngine.Mode.EQUILIBRIO
     private var keepExifState: Boolean = true
     private var removeGpsState: Boolean = false
@@ -58,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             takePermission(uri)
             sourceUri = uri
             saveUris()
-            updateLabels()
+            updateOptionsSummary()
             analyze()
         }
     }
@@ -71,12 +84,38 @@ class MainActivity : AppCompatActivity() {
             destUri = uri
             saveUris()
             updateLabels()
+            updateControls()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        bindScreen()
+
+        val prefs = getSharedPreferences("dxotimiza", MODE_PRIVATE)
+        prefs.getString("source_uri", null)?.let { sourceUri = Uri.parse(it) }
+        prefs.getString("dest_uri", null)?.let { destUri = Uri.parse(it) }
+        selectedMode = OptimizeEngine.Mode.values().firstOrNull {
+            it.name == prefs.getString("mode", null)
+        } ?: OptimizeEngine.Mode.EQUILIBRIO
+        keepExifState = prefs.getBoolean("keep_exif", true)
+        removeGpsState = prefs.getBoolean("remove_gps", false)
+        includeSubfolders = prefs.getBoolean("subfolders", true)
+        bindInlineOptions()
+        updateLabels()
+        updateOptionsSummary()
+        btnOptimize.isEnabled = false
+        if (sourceUri != null) analyze()
+    }
+
+    private fun bindScreen() {
         setContentView(R.layout.activity_main)
+        val mainScroll = findViewById<android.view.View>(R.id.mainScroll)
+        ViewCompat.setOnApplyWindowInsetsListener(mainScroll) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
 
         txtSource = findViewById(R.id.txtSource)
         txtDest = findViewById(R.id.txtDest)
@@ -87,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         txtSavedDetail = findViewById(R.id.txtSavedDetail)
         txtPreviewHint = findViewById(R.id.txtPreviewHint)
         txtOptionsSummary = findViewById(R.id.txtOptionsSummary)
+        txtPercent = findViewById(R.id.txtPercent)
         imgPreview = findViewById(R.id.imgPreview)
         progress = findViewById(R.id.progress)
         btnOptimize = findViewById(R.id.btnOptimize)
@@ -94,18 +134,57 @@ class MainActivity : AppCompatActivity() {
         btnOptions = findViewById(R.id.btnOptions)
         btnDest = findViewById(R.id.btnDest)
 
-        val prefs = getSharedPreferences("dxotimiza", MODE_PRIVATE)
-        prefs.getString("source_uri", null)?.let { sourceUri = Uri.parse(it) }
-        prefs.getString("dest_uri", null)?.let { destUri = Uri.parse(it) }
-        updateLabels()
-        updateOptionsSummary()
-        if (sourceUri != null) analyze()
-
         findViewById<Button>(R.id.btnSource).setOnClickListener { pickSource.launch(null) }
         findViewById<Button>(R.id.btnDest).setOnClickListener { pickDest.launch(null) }
         btnAnalyze.setOnClickListener { analyze() }
         btnOptimize.setOnClickListener { optimize() }
-        btnOptions.setOnClickListener { showOptionsDialog() }
+        btnOptions.setOnClickListener { showOptionsMenu() }
+
+        val modeGroup = findViewById<RadioGroup>(R.id.modeGroup)
+        modeGroup?.check(if (overwriteState) R.id.modeOverwrite else R.id.modeOther)
+        modeGroup?.setOnCheckedChangeListener { _, checkedId ->
+            val newOverwrite = checkedId == R.id.modeOverwrite
+            if (newOverwrite != overwriteState) {
+                overwriteState = newOverwrite
+                updateOptionsSummary()
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // The manifest handles resizing in place: reinflate the width-qualified layout
+        // while preserving the active batch, its preview and actual displayed metrics.
+        val textIds = listOf(
+            R.id.txtSavedTotal, R.id.txtSavedDetail, R.id.txtFileCount,
+            R.id.txtInputSize, R.id.txtStatus, R.id.txtCurrent, R.id.txtSummary,
+            R.id.txtPreviewHint, R.id.txtPercent
+        )
+        val texts = textIds.mapNotNull { id ->
+            findViewById<TextView>(id)?.let { id to it.text }
+        }.toMap()
+        val preview = imgPreview.drawable
+        val percent = progress.progress
+        bindScreen()
+        bindInlineOptions()
+        updateOptionsSummary()
+        texts.forEach { (id, text) -> findViewById<TextView>(id)?.text = text }
+        imgPreview.setImageDrawable(preview)
+        progress.isIndeterminate = analyzing
+        progress.progress = percent
+    }
+
+    private fun formatPresetText(number: String, label: String): CharSequence {
+        val ssb = SpannableStringBuilder()
+        val startNum = ssb.length
+        ssb.append(number)
+        ssb.setSpan(RelativeSizeSpan(1.75f), startNum, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ssb.setSpan(StyleSpan(Typeface.BOLD), startNum, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ssb.append("\n")
+        val startLabel = ssb.length
+        ssb.append(label)
+        ssb.setSpan(RelativeSizeSpan(0.85f), startLabel, ssb.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return ssb
     }
 
     private fun updateOptionsSummary() {
@@ -114,50 +193,127 @@ class MainActivity : AppCompatActivity() {
         } else {
             "sem EXIF"
         }
+        val sub = if (includeSubfolders) "com subpastas" else "sem subpastas"
         val dest = if (overwriteState) "Substituir originais" else "Outra pasta"
-        txtOptionsSummary.text = "${selectedMode.label} • $exif • $dest"
+        txtOptionsSummary.text = "${selectedMode.label} • $exif • $sub • $dest"
+
+        val modeGroup = findViewById<RadioGroup>(R.id.modeGroup)
+        modeGroup?.check(if (overwriteState) R.id.modeOverwrite else R.id.modeOther)
+
+        val destRow = findViewById<android.view.View>(R.id.layoutDestRow)
         if (overwriteState) {
-            txtDest.text = "Destino: mesma pasta — substituir originais"
+            destRow?.alpha = 0.35f
+            txtDest.text = "Destino: mesma pasta dos originais"
             btnDest.isEnabled = false
+            findViewById<TextView>(R.id.txtProtection)?.text =
+                "Atenção: os originais serão substituídos após confirmação."
         } else {
-            btnDest.isEnabled = true
+            destRow?.alpha = 1.0f
+            btnDest.isEnabled = !running && !analyzing
             updateLabels()
+            findViewById<TextView>(R.id.txtProtection)?.text =
+                "Os originais serão preservados em outra pasta."
+        }
+
+        getSharedPreferences("dxotimiza", MODE_PRIVATE).edit()
+            .putString("mode", selectedMode.name)
+            .putBoolean("keep_exif", keepExifState)
+            .putBoolean("remove_gps", removeGpsState)
+            .putBoolean("subfolders", includeSubfolders).apply()
+
+        updateControls()
+    }
+
+    private fun bindInlineOptions() {
+        val presets = findViewById<RadioGroup>(R.id.presetGroup)
+        presets.check(when (selectedMode) {
+            OptimizeEngine.Mode.QUALIDADE -> R.id.preset92
+            OptimizeEngine.Mode.LEVE -> R.id.preset75
+            else -> R.id.preset85
+        })
+
+        findViewById<RadioButton>(R.id.preset92)?.text = formatPresetText("92", "Qualidade")
+        findViewById<RadioButton>(R.id.preset85)?.text = formatPresetText("85", "Equilíbrio")
+        findViewById<RadioButton>(R.id.preset75)?.text = formatPresetText("75", "Leve")
+
+        presets.setOnCheckedChangeListener { _, checked ->
+            selectedMode = when (checked) {
+                R.id.preset92 -> OptimizeEngine.Mode.QUALIDADE
+                R.id.preset75 -> OptimizeEngine.Mode.LEVE
+                else -> OptimizeEngine.Mode.EQUILIBRIO
+            }
+            updateOptionsSummary()
         }
     }
 
-    private fun showOptionsDialog() {
-        val view = layoutInflater.inflate(R.layout.dialog_options, null)
-        val rdoQualidade = view.findViewById<RadioButton>(R.id.rdoQualidadeDialog)
-        val rdoEquilibrio = view.findViewById<RadioButton>(R.id.rdoEquilibrioDialog)
-        val rdoLeve = view.findViewById<RadioButton>(R.id.rdoLeveDialog)
-        val chkExif = view.findViewById<CheckBox>(R.id.chkExifDialog)
-        val chkNoGps = view.findViewById<CheckBox>(R.id.chkNoGpsDialog)
-        val rdoDestOther = view.findViewById<RadioButton>(R.id.rdoDestOtherDialog)
-        val rdoDestOverwrite = view.findViewById<RadioButton>(R.id.rdoDestOverwriteDialog)
-        when (selectedMode) {
-            OptimizeEngine.Mode.QUALIDADE -> rdoQualidade.isChecked = true
-            OptimizeEngine.Mode.LEVE -> rdoLeve.isChecked = true
-            else -> rdoEquilibrio.isChecked = true
+    private fun updateControls() {
+        val available = !running && !analyzing
+        listOf(
+            R.id.btnSource, R.id.btnAnalyze, R.id.btnOptions,
+            R.id.preset92, R.id.preset85, R.id.preset75,
+            R.id.modeOther, R.id.modeOverwrite
+        ).forEach { id ->
+            findViewById<android.view.View>(id)?.isEnabled = available
         }
-        chkExif.isChecked = keepExifState
-        chkNoGps.isChecked = removeGpsState
-        if (overwriteState) rdoDestOverwrite.isChecked = true else rdoDestOther.isChecked = true
-        AlertDialog.Builder(this)
-            .setTitle("Opções")
-            .setView(view)
-            .setPositiveButton("Salvar") { _, _ ->
-                selectedMode = when {
-                    rdoQualidade.isChecked -> OptimizeEngine.Mode.QUALIDADE
-                    rdoLeve.isChecked -> OptimizeEngine.Mode.LEVE
-                    else -> OptimizeEngine.Mode.EQUILIBRIO
+        btnDest.isEnabled = available && !overwriteState
+        btnOptimize.isEnabled = available && listed.isNotEmpty() &&
+            (overwriteState || destUri != null)
+    }
+
+    private fun showOptionsMenu() {
+        if (running || analyzing) return
+        val popup = PopupMenu(this, btnOptions)
+        popup.menu.add(0, 1, 0, "Manter EXIF").apply {
+            isCheckable = true
+            isChecked = keepExifState
+        }
+        popup.menu.add(0, 2, 1, "Remover GPS").apply {
+            isCheckable = true
+            isChecked = removeGpsState
+            isEnabled = keepExifState
+        }
+        popup.menu.add(0, 3, 2, "Incluir subpastas").apply {
+            isCheckable = true
+            isChecked = includeSubfolders
+        }
+        popup.menu.add(0, 4, 3, "Modo: " + if (overwriteState) "Substituir originais" else "Outra pasta (cópia)")
+
+        val versionName = runCatching {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        }.getOrNull() ?: "2.0.0"
+        popup.menu.add(0, 5, 4, "Versão $versionName")
+
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> {
+                    keepExifState = !keepExifState
+                    updateOptionsSummary()
+                    true
                 }
-                keepExifState = chkExif.isChecked
-                removeGpsState = chkNoGps.isChecked
-                overwriteState = rdoDestOverwrite.isChecked
-                updateOptionsSummary()
+                2 -> {
+                    removeGpsState = !removeGpsState
+                    updateOptionsSummary()
+                    true
+                }
+                3 -> {
+                    includeSubfolders = !includeSubfolders
+                    updateOptionsSummary()
+                    if (sourceUri != null) analyze()
+                    true
+                }
+                4 -> {
+                    overwriteState = !overwriteState
+                    updateOptionsSummary()
+                    true
+                }
+                5 -> {
+                    Toast.makeText(this, "JPG Diet v$versionName", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
+        }
+        popup.show()
     }
 
     private fun takePermission(uri: Uri) {
@@ -194,68 +350,102 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun sameDocument(first: Uri, second: Uri): Boolean {
+        if (first == second) return true
+        if (first.authority != second.authority) return false
+        return runCatching {
+            android.provider.DocumentsContract.getDocumentId(first) ==
+                android.provider.DocumentsContract.getDocumentId(second)
+        }.getOrDefault(false)
+    }
+
     private fun selectedMode(): OptimizeEngine.Mode {
         return selectedMode
     }
 
     private fun analyze() {
+        if (running || analyzing) return
         val uri = sourceUri
         if (uri == null) {
             txtStatus.text = "Escolha a pasta de origem primeiro."
             return
         }
+        analyzing = true
+        listed = emptyList()
+        updateControls()
+        txtStatus.text = "Analisando pasta…"
+        txtPercent.text = "—"
+        findViewById<TextView>(R.id.txtFileCount).text = "—"
+        findViewById<TextView>(R.id.txtInputSize).text = "—"
+        progress.isIndeterminate = true
+        val recursive = includeSubfolders
         lifecycleScope.launch(Dispatchers.IO) {
-            val root = SafTree.root(this@MainActivity, uri)
-            if (root == null) {
+            try {
+                val root = SafTree.root(this@MainActivity, uri)
+                if (root == null) {
+                    withContext(Dispatchers.Main) {
+                        txtStatus.text = "Não consegui abrir a pasta de origem. Escolha de novo."
+                    }
+                    return@launch
+                }
+                val items = OptimizeEngine.listJpegs(root, recursive)
+                val total = items.sumOf { it.first.length() }
+
+                // Prévia do visual v0.3: miniatura da primeira foto, sem
+                // carregar o arquivo inteiro (amostra para ~800px de largura).
+                val preview = try {
+                    val first = items.firstOrNull()?.first
+                    if (first == null) null else {
+                        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                        contentResolver.openInputStream(first.uri)?.use {
+                            BitmapFactory.decodeStream(it, null, bounds)
+                        }
+                        var sample = 1
+                        while (bounds.outWidth / sample > 800 && bounds.outHeight / sample > 800) sample *= 2
+                        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+                        contentResolver.openInputStream(first.uri)?.use {
+                            BitmapFactory.decodeStream(it, null, opts)
+                        }
+                    }
+                } catch (ignored: Exception) {
+                    null
+                }
                 withContext(Dispatchers.Main) {
-                    txtStatus.text = "Não consegui abrir a pasta de origem. Escolha de novo."
-                }
-                return@launch
-            }
-            val items = OptimizeEngine.listJpegs(root)
-            val total = items.sumOf { it.first.length() }
-            listed = items
-            // Prévia do visual v0.3: miniatura da primeira foto, sem
-            // carregar o arquivo inteiro (amostra para ~800px de largura).
-            val preview = try {
-                val first = items.firstOrNull()?.first
-                if (first == null) null else {
-                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    contentResolver.openInputStream(first.uri)?.use {
-                        BitmapFactory.decodeStream(it, null, bounds)
+                    txtStatus.text = "Análise: ${items.size} JPGs, " +
+                        SafTree.formatBytes(total) + " no total."
+                    txtPercent.text = "0%"
+                    listed = items
+                    findViewById<TextView>(R.id.txtFileCount).text = items.size.toString()
+                    findViewById<TextView>(R.id.txtInputSize).text = SafTree.formatBytes(total)
+                    txtSummary.text = ""
+                    if (preview != null) {
+                        imgPreview.setImageBitmap(preview)
+                        txtPreviewHint.text = "Primeira foto: ${items.first().second}"
+                    } else {
+                        imgPreview.setImageDrawable(null)
+                        txtPreviewHint.text = "Nenhuma foto para prévia nesta pasta"
                     }
-                    var sample = 1
-                    while (bounds.outWidth / sample > 800 && bounds.outHeight / sample > 800) sample *= 2
-                    val opts = BitmapFactory.Options().apply { inSampleSize = sample }
-                    contentResolver.openInputStream(first.uri)?.use {
-                        BitmapFactory.decodeStream(it, null, opts)
-                    }
+                    progress.progress = 0
                 }
-            } catch (ignored: Exception) {
-                null
-            }
-            withContext(Dispatchers.Main) {
-                txtStatus.text = "Análise: ${items.size} JPGs, " +
-                    SafTree.formatBytes(total) + " no total."
-                txtSummary.text = ""
-                txtSavedTotal.text = "0 MB"
-                txtSavedDetail.text = "${items.size} JPGs • " +
-                    SafTree.formatBytes(total) + " no total"
-                if (preview != null) {
-                    imgPreview.setImageBitmap(preview)
-                    txtPreviewHint.text = "Primeira foto: ${items.first().second}"
-                } else {
-                    imgPreview.setImageDrawable(null)
-                    txtPreviewHint.text = "Nenhuma foto para prévia nesta pasta"
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    listed = emptyList()
+                    txtStatus.text = "Falha na análise. Selecione a pasta novamente."
                 }
-                progress.progress = 0
-                btnOptimize.isEnabled = items.isNotEmpty()
+            } finally {
+                withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main) {
+                    analyzing = false
+                    progress.isIndeterminate = false
+                    updateControls()
+                }
             }
         }
     }
 
     private fun optimize(confirmedOverwrite: Boolean = false) {
-        if (running) return
+        if (running || analyzing) return
         val sourceRoot = sourceUri?.let { SafTree.root(this, it) }
         if (sourceRoot == null) {
             Toast.makeText(this, "Escolha a pasta de origem primeiro.", Toast.LENGTH_SHORT).show()
@@ -271,7 +461,7 @@ class MainActivity : AppCompatActivity() {
                     "Os arquivos otimizados vão substituir os originais " +
                     "na mesma pasta. Isso é irreversível. Só arquivos que " +
                     "ficarem menores serão substituídos; os demais e as " +
-                    "falhas ficam intactos."
+                    "arquivos sem ganho ficam intactos. Mantenha uma cópia de segurança."
                 )
                 .setPositiveButton("Substituir mesmo assim") { _, _ ->
                     optimize(confirmedOverwrite = true)
@@ -289,7 +479,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Escolha a origem e o destino primeiro.", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!overwriteState && sourceRoot.uri == destRoot.uri) {
+        if (!overwriteState && sameDocument(sourceRoot.uri, destRoot.uri)) {
             Toast.makeText(
                 this,
                 "Destino igual à origem: escolha outra pasta, para a original não se misturar com a otimizada.",
@@ -300,87 +490,107 @@ class MainActivity : AppCompatActivity() {
         val mode = selectedMode()
         val keepExif = keepExifState
         val removeGps = removeGpsState
+        val overwrite = overwriteState
+        val recursive = includeSubfolders
 
         running = true
-        btnOptimize.isEnabled = false
-        btnAnalyze.isEnabled = false
+        updateControls()
+        progress.progress = 0
+        txtPercent.text = "0%"
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         txtStatus.text = "Otimizando em ${mode.label}… mantenha o app aberto."
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val items = OptimizeEngine.listJpegs(sourceRoot)
-            val results = mutableListOf<OptimizeEngine.Item>()
-            var done = 0
-            for ((file, relative) in items) {
-                // Recria a estrutura relativa dentro do destino.
-                var parent = destRoot
-                val parts = relative.split("/").dropLast(1)
-                if (parts.isNotEmpty()) {
-                    parent = SafTree.dirPath(destRoot, parts) ?: destRoot
+            try {
+                val items = OptimizeEngine.listJpegs(sourceRoot, recursive)
+                val results = mutableListOf<OptimizeEngine.Item>()
+                var done = 0
+                for ((file, relative) in items) {
+                    ensureActive()
+                    // Recria a estrutura relativa dentro do destino.
+                    var parent = destRoot
+                    val parts = relative.split("/").dropLast(1)
+                    if (parts.isNotEmpty()) {
+                        parent = SafTree.dirPath(destRoot, parts)
+                            ?: throw java.io.IOException("Não foi possível criar a subpasta de destino")
+                    }
+                    val result = OptimizeEngine.optimizeOne(
+                        this@MainActivity, file, parent,
+                        mode.quality, keepExif, removeGps, relative, overwrite
+                    )
+                    results.add(result)
+                    done++
+                    val current = done
+                    val pct = if (items.isNotEmpty()) current * 100 / items.size else 100
+                    withContext(Dispatchers.Main) {
+                        progress.progress = pct
+                        txtPercent.text = "$pct%"
+                        txtCurrent.text = "$current/${items.size}: ${file.name}"
+                        txtStatus.text = "Otimizando… $current de ${items.size}"
+                    }
                 }
-                val result = OptimizeEngine.optimizeOne(
-                    this@MainActivity, file, parent,
-                    mode.quality, keepExif, removeGps, relative, overwriteState
-                )
-                results.add(result)
-                done++
-                val current = done
+
+                val originalTotal = results.sumOf { it.originalBytes }
+                val newTotal = results.sumOf { it.newBytes }
+                val optimized = results.count { it.status == OptimizeEngine.Status.OTIMIZADO }
+                val kept = results.count { it.status == OptimizeEngine.Status.MANTIDO }
+                val failed = results.count { it.status == OptimizeEngine.Status.FALHOU }
+                val saved = if (originalTotal > 0) {
+                    (originalTotal - newTotal).toDouble() / originalTotal * 100.0
+                } else 0.0
+
+                // Relatório dentro do destino, para conferir depois.
+                val csv = buildString {
+                    append("arquivo;original_bytes;novo_bytes;economia_pct;status\n")
+                    for (r in results) {
+                        append(csvCell(r.relativePath)).append(";")
+                        append(r.originalBytes).append(";")
+                        append(r.newBytes).append(";")
+                        append("%.1f".format(r.savedPercent)).append(";")
+                        append(r.status.name).append("\n")
+                    }
+                }
+                SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
+                val motorLabel = "Android"
+                val destLabel = if (overwrite) "substituir originais" else "outra pasta"
+                val summaryText = "JPG Diet 2.0.0 — modo ${mode.label} — motor $motorLabel — destino $destLabel\n" +
+                    "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
+                    "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
+                    "Depois: ${SafTree.formatBytes(newTotal)}\n" +
+                    "Economia: ${"%.1f".format(saved)}%\n" +
+                    (if (overwrite) "Modo de substituição de originais. " else "Originais não alterados. ") +
+                    "Detalhe por arquivo em relatorio-otimizacao.csv."
+                SafTree.writeText(this@MainActivity, destRoot, "resumo-otimizacao.txt", summaryText)
+
                 withContext(Dispatchers.Main) {
-                    progress.progress = if (items.isNotEmpty()) current * 100 / items.size else 100
-                    txtCurrent.text = "$current/${items.size}: ${file.name}"
-                    txtStatus.text = "Otimizando… $current de ${items.size}"
+                    progress.progress = 100
+                    txtPercent.text = "100%"
+                    txtSavedTotal.text = SafTree.formatBytes(
+                        (originalTotal - newTotal).coerceAtLeast(0)
+                    )
+                    txtSavedDetail.text = "${results.size} arquivos • " +
+                        "economia ${"%.1f".format(saved)}%"
+                    txtStatus.text = "Pronto: ${results.size} arquivos."
+                    txtCurrent.text = ""
+                    txtSummary.text = "Motor: $motorLabel. Antes: ${SafTree.formatBytes(originalTotal)} → " +
+                        "Depois: ${SafTree.formatBytes(newTotal)} " +
+                        "(economia ${"%.1f".format(saved)}%). " +
+                        "Otimizados: $optimized, mantidos: $kept, falhas: $failed. " +
+                        "Relatório em relatorio-otimizacao.csv, no destino."
+                    Toast.makeText(this@MainActivity, "Lote concluído.", Toast.LENGTH_SHORT).show()
                 }
-            }
-
-            val originalTotal = results.sumOf { it.originalBytes }
-            val newTotal = results.sumOf { it.newBytes }
-            val optimized = results.count { it.status == OptimizeEngine.Status.OTIMIZADO }
-            val kept = results.count { it.status == OptimizeEngine.Status.MANTIDO }
-            val failed = results.count { it.status == OptimizeEngine.Status.FALHOU }
-            val saved = if (originalTotal > 0) {
-                (originalTotal - newTotal).toDouble() / originalTotal * 100.0
-            } else 0.0
-
-            // Relatório dentro do destino, para conferir depois.
-            val csv = buildString {
-                append("arquivo;original_bytes;novo_bytes;economia_pct;status\n")
-                for (r in results) {
-                    append(csvCell(r.relativePath)).append(";")
-                    append(r.originalBytes).append(";")
-                    append(r.newBytes).append(";")
-                    append("%.1f".format(r.savedPercent)).append(";")
-                    append(r.status.name).append("\n")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    txtStatus.text = "Lote interrompido. Confira o destino antes de tentar novamente."
                 }
-            }
-            SafTree.writeText(this@MainActivity, destRoot, "relatorio-otimizacao.csv", csv)
-            val motorLabel = "Android"
-            val destLabel = if (overwriteState) "substituir originais" else "outra pasta"
-            val summaryText = "JPG Diet 2.0.0 — modo ${mode.label} — motor $motorLabel — destino $destLabel\n" +
-                "Arquivos: ${results.size} (otimizados: $optimized, mantidos sem ganho: $kept, falhas: $failed)\n" +
-                "Antes: ${SafTree.formatBytes(originalTotal)}\n" +
-                "Depois: ${SafTree.formatBytes(newTotal)}\n" +
-                "Economia: ${"%.1f".format(saved)}%\n" +
-                "Originais não alterados. Detalhe por arquivo em relatorio-otimizacao.csv."
-            SafTree.writeText(this@MainActivity, destRoot, "resumo-otimizacao.txt", summaryText)
-
-            withContext(Dispatchers.Main) {
-                running = false
-                btnOptimize.isEnabled = true
-                btnAnalyze.isEnabled = true
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                txtSavedTotal.text = SafTree.formatBytes(
-                    (originalTotal - newTotal).coerceAtLeast(0)
-                )
-                txtSavedDetail.text = "${results.size} arquivos • " +
-                    "economia ${"%.1f".format(saved)}%"
-                txtStatus.text = "Pronto: ${results.size} arquivos."
-                txtCurrent.text = ""
-                txtSummary.text = "Motor: $motorLabel. Antes: ${SafTree.formatBytes(originalTotal)} → " +
-                    "Depois: ${SafTree.formatBytes(newTotal)} " +
-                    "(economia ${"%.1f".format(saved)}%). " +
-                    "Otimizados: $optimized, mantidos: $kept, falhas: $failed. " +
-                    "Relatório em relatorio-otimizacao.csv, no destino."
-                Toast.makeText(this@MainActivity, "Lote concluído.", Toast.LENGTH_SHORT).show()
+            } finally {
+                withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main) {
+                    running = false
+                    updateControls()
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
             }
         }
     }

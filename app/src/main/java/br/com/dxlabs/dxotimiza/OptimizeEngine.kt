@@ -58,9 +58,9 @@ object OptimizeEngine {
     }
 
     /** Lista os JPEGs da origem, com o caminho relativo a ela. */
-    fun listJpegs(root: DocumentFile): List<Pair<DocumentFile, String>> {
+    fun listJpegs(root: DocumentFile, includeSubfolders: Boolean = true): List<Pair<DocumentFile, String>> {
         val result = mutableListOf<Pair<DocumentFile, String>>()
-        collectJpegs(root, "", result)
+        collectJpegs(root, "", result, includeSubfolders)
         return result.sortedBy { it.second.lowercase() }
     }
 
@@ -73,14 +73,15 @@ object OptimizeEngine {
     private fun collectJpegs(
         dir: DocumentFile,
         prefix: String,
-        out: MutableList<Pair<DocumentFile, String>>
+        out: MutableList<Pair<DocumentFile, String>>,
+        includeSubfolders: Boolean
     ) {
         for (child in SafTree.children(dir)) {
             val name = child.name ?: continue
             if (name.startsWith(".")) continue
             if (child.isDirectory) {
-                if (name.endsWith("_otimizado", ignoreCase = true)) continue
-                collectJpegs(child, prefix + name + "/", out)
+                if (!includeSubfolders || name.endsWith("_otimizado", ignoreCase = true)) continue
+                collectJpegs(child, prefix + name + "/", out, includeSubfolders)
             } else if (child.isFile && SafTree.isJpeg(name)) {
                 out.add(child to (prefix + name))
             }

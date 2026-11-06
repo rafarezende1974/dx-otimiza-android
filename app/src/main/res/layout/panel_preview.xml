@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Jpg.Panel"
+    android:layout_marginTop="0dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Jpg.Eyebrow"
+        android:text="PRÉVIA DA ORIGEM" />
+
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/preview_height"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/card_preview_bg"
+        android:contentDescription="Primeira foto da pasta de origem"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/txtPreviewHint"
+        style="@style/Jpg.Muted"
+        android:layout_marginTop="6dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:text="A primeira foto aparece após a análise." />
+</LinearLayout>
