@@ -278,6 +278,11 @@ class MainActivity : AppCompatActivity() {
         }
         popup.menu.add(0, 4, 3, "Modo: " + if (overwriteState) "Substituir originais" else "Outra pasta (cópia)")
 
+        val versionName = runCatching {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        }.getOrNull() ?: "2.0.0"
+        popup.menu.add(0, 5, 4, "Versão $versionName")
+
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> {
@@ -299,6 +304,10 @@ class MainActivity : AppCompatActivity() {
                 4 -> {
                     overwriteState = !overwriteState
                     updateOptionsSummary()
+                    true
+                }
+                5 -> {
+                    Toast.makeText(this, "JPG Diet v$versionName", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
